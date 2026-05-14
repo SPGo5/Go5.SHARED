@@ -361,16 +361,13 @@ function ppuZoom(delta) {
 }
 
 function ppuFitObject() {
-  // Fit the non-transparent object inside the crop circle
-  const img = document.getElementById('ppu-img');
-  if (!img) return;
-  // Scale to fit entirely within PPU_SIZE with a small margin
-  const margin = 10;
-  const fitScale = Math.min(
-    (PPU_SIZE - margin * 2) / ppuState.naturalW,
-    (PPU_SIZE - margin * 2) / ppuState.naturalH
-  );
+  if (!ppuState.naturalW || !ppuState.naturalH) return;
+  // Fit entire image inside the crop circle with small margin
+  const margin = 16;
+  const maxSize = PPU_SIZE - margin * 2;
+  const fitScale = Math.min(maxSize / ppuState.naturalW, maxSize / ppuState.naturalH);
   ppuState.scale = fitScale;
+  // Center the scaled image within the crop wrap
   ppuState.x = (PPU_SIZE - ppuState.naturalW * fitScale) / 2;
   ppuState.y = (PPU_SIZE - ppuState.naturalH * fitScale) / 2;
   ppuApplyTransform();
@@ -511,8 +508,9 @@ async function ppuUpload() {
     btn.disabled = false;
     if (res.success) {
       statusEl.textContent = '✅ Saved! Refreshing…';
+      // Clear cache so updateProfileCorner re-fetches from GAS with isPersonal flag
       cachedProfilePicDataUri = null;
-      cachedProfilePicIsPersonal = !isTransparent; // transparent uploads show as flower (no circle)
+      cachedProfilePicIsPersonal = false;
       setTimeout(function() {
         updateProfileCorner();
         closePpuModal();
