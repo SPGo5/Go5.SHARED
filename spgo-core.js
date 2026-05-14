@@ -116,10 +116,13 @@ function checkOAuthReturn() {
 }
 
 async function validateWithToken(token) {
-  // Show full-screen verifying state
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const verifyScreen = document.getElementById('screen-B0-verify');
-  if (verifyScreen) verifyScreen.classList.add('active');
+  // Show verifying state — portals override showVerifying() for their own screen
+  if (typeof showVerifying === 'function') showVerifying();
+  else {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const verifyScreen = document.getElementById('screen-B0-verify');
+    if (verifyScreen) verifyScreen.classList.add('active');
+  }
 
   try {
     const infoResp = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
@@ -167,6 +170,13 @@ async function validateWithToken(token) {
     goTo('screen-B0-login');
     showLoginError('Connection error. Check your internet and try again.');
   }
+}
+
+function showVerifying() {
+  // Default for SuperPortal — portals override this
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const verifyScreen = document.getElementById('screen-B0-verify');
+  if (verifyScreen) verifyScreen.classList.add('active');
 }
 
 function startGoogleLogin() {
