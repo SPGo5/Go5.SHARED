@@ -362,12 +362,12 @@ function ppuZoom(delta) {
 
 function ppuFitObject() {
   if (!ppuState.naturalW || !ppuState.naturalH) return;
-  // Fit entire image inside the crop circle with small margin
-  const margin = 16;
-  const maxSize = PPU_SIZE - margin * 2;
+  // For a square image to fit inside a circle, the diagonal must fit within the circle diameter.
+  // So max safe size = PPU_SIZE / sqrt(2) with a small margin
+  const margin = 8;
+  const maxSize = (PPU_SIZE / Math.SQRT2) - margin;
   const fitScale = Math.min(maxSize / ppuState.naturalW, maxSize / ppuState.naturalH);
   ppuState.scale = fitScale;
-  // Center the scaled image within the crop wrap
   ppuState.x = (PPU_SIZE - ppuState.naturalW * fitScale) / 2;
   ppuState.y = (PPU_SIZE - ppuState.naturalH * fitScale) / 2;
   ppuApplyTransform();
