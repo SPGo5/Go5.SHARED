@@ -224,15 +224,50 @@ function updateProfileCorner() {
   });
 }
 
+function ppuCheckUriTransparency(dataUri, onResult) {
+  // Load the image from data URI and check for transparent pixels
+  const testImg = new Image();
+  testImg.onload = function() {
+    const tc = document.createElement('canvas');
+    tc.width = testImg.width; tc.height = testImg.height;
+    const tctx = tc.getContext('2d', { willReadFrequently: true });
+    tctx.drawImage(testImg, 0, 0);
+    const w = testImg.width, h = testImg.height;
+    const pts = [[2,2],[w-2,2],[2,h-2],[w-2,h-2],[w/2,2],[2,h/2],[w-2,h/2],[w/2,h-2]];
+    let transparentCount = 0;
+    for (const [cx, cy] of pts) {
+      try {
+        const px = tctx.getImageData(Math.round(cx), Math.round(cy), 1, 1).data;
+        if (px[3] < 30) transparentCount++;
+      } catch(e) {}
+    }
+    onResult(transparentCount >= 4);
+  };
+  testImg.onerror = function() { onResult(false); };
+  testImg.src = dataUri;
+}
+
 function loadProfilePic(idCode, tier, callback) {
   if (cachedProfilePicDataUri) { callback(cachedProfilePicDataUri, cachedProfilePicIsPersonal); return; }
   gasJsonp('action=getProfilePic&idCode=' + encodeURIComponent(idCode) + '&tier=' + (tier||0), function(data) {
     if (data.data) {
-      const uri = 'data:' + (data.mime || 'image/png') + ';base64,' + data.data;
-      const isPersonal = !!(data.isPersonal);
-      cachedProfilePicDataUri = uri;
-      cachedProfilePicIsPersonal = isPersonal;
-      callback(uri, isPersonal);
+      const mime = data.mime || 'image/png';
+      const uri = 'data:' + mime + ';base64,' + data.data;
+      if (data.isPersonal) {
+        // Personal pic — check if it has transparent background
+        ppuCheckUriTransparency(uri, function(isTransparent) {
+          // isPersonal=true but transparent=treat like flower (no circle)
+          const showAsCircle = !isTransparent;
+          cachedProfilePicDataUri = uri;
+          cachedProfilePicIsPersonal = showAsCircle;
+          callback(uri, showAsCircle);
+        });
+      } else {
+        // Tier default — always flower style
+        cachedProfilePicDataUri = uri;
+        cachedProfilePicIsPersonal = false;
+        callback(uri, false);
+      }
     } else {
       callback(null, false);
     }
@@ -292,15 +327,17 @@ function ppuFileChosen(input) {
     img.onload = function() {
       ppuState.naturalW = img.naturalWidth;
       ppuState.naturalH = img.naturalHeight;
-      // Fit image to fill the circle crop area
       const fitScale = Math.max(PPU_SIZE / img.naturalWidth, PPU_SIZE / img.naturalHeight);
       ppuState.scale = fitScale;
-      // Center
       ppuState.x = (PPU_SIZE - img.naturalWidth * fitScale) / 2;
       ppuState.y = (PPU_SIZE - img.naturalHeight * fitScale) / 2;
       ppuApplyTransform();
       document.getElementById('ppu-step1').style.display = 'none';
       document.getElementById('ppu-step2').style.display = 'flex';
+      // Show Fit button only for transparent images
+      const isTransp = ppuDetectTransparency(img);
+      const fitBtn = document.getElementById('ppu-fit-btn');
+      if (fitBtn) fitBtn.style.display = isTransp ? 'block' : 'none';
     };
     img.src = e.target.result;
   };
@@ -318,10 +355,25 @@ function ppuApplyTransform() {
 function ppuZoom(delta) {
   const oldScale = ppuState.scale;
   ppuState.scale = Math.max(0.2, Math.min(10, ppuState.scale + delta * ppuState.scale));
-  // Zoom toward center of crop circle
   const ratio = ppuState.scale / oldScale;
   ppuState.x = PPU_SIZE/2 - ratio * (PPU_SIZE/2 - ppuState.x);
   ppuState.y = PPU_SIZE/2 - ratio * (PPU_SIZE/2 - ppuState.y);
+  ppuApplyTransform();
+}
+
+function ppuFitObject() {
+  // Fit the non-transparent object inside the crop circle
+  const img = document.getElementById('ppu-img');
+  if (!img) return;
+  // Scale to fit entirely within PPU_SIZE with a small margin
+  const margin = 10;
+  const fitScale = Math.min(
+    (PPU_SIZE - margin * 2) / ppuState.naturalW,
+    (PPU_SIZE - margin * 2) / ppuState.naturalH
+  );
+  ppuState.scale = fitScale;
+  ppuState.x = (PPU_SIZE - ppuState.naturalW * fitScale) / 2;
+  ppuState.y = (PPU_SIZE - ppuState.naturalH * fitScale) / 2;
   ppuApplyTransform();
 }
 
