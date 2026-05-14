@@ -376,22 +376,23 @@ function ppuZoom(delta) {
   else setupDrag();
 })();
 
-function ppuDetectTransparency(img, x, y, scale, naturalW, naturalH) {
-  // Sample corners and edges of the image for transparent pixels
+function ppuDetectTransparency(img) {
+  // Draw original image at natural size onto a test canvas, check for transparent pixels
   const testCanvas = document.createElement('canvas');
-  testCanvas.width = PPU_SIZE; testCanvas.height = PPU_SIZE;
-  const testCtx = testCanvas.getContext('2d');
-  testCtx.drawImage(img, x, y, naturalW * scale, naturalH * scale);
-  const corners = [
-    [2, 2], [PPU_SIZE-2, 2], [2, PPU_SIZE-2], [PPU_SIZE-2, PPU_SIZE-2],
-    [PPU_SIZE/2, 2], [2, PPU_SIZE/2], [PPU_SIZE-2, PPU_SIZE/2], [PPU_SIZE/2, PPU_SIZE-2]
-  ];
+  testCanvas.width = img.naturalWidth; testCanvas.height = img.naturalHeight;
+  const testCtx = testCanvas.getContext('2d', { willReadFrequently: true });
+  testCtx.drawImage(img, 0, 0);
+  // Sample corners of the actual image
+  const w = img.naturalWidth, h = img.naturalHeight;
+  const pts = [[2,2],[w-2,2],[2,h-2],[w-2,h-2],[w/2,2],[2,h/2],[w-2,h/2],[w/2,h-2]];
   let transparentCount = 0;
-  for (const [cx, cy] of corners) {
-    const pixel = testCtx.getImageData(cx, cy, 1, 1).data;
-    if (pixel[3] < 30) transparentCount++; // alpha < 30 = transparent
+  for (const [cx, cy] of pts) {
+    try {
+      const pixel = testCtx.getImageData(Math.round(cx), Math.round(cy), 1, 1).data;
+      if (pixel[3] < 30) transparentCount++;
+    } catch(e) {}
   }
-  return transparentCount >= 4; // at least half the sample points are transparent
+  return transparentCount >= 4;
 }
 
 async function ppuUpload() {
@@ -405,22 +406,21 @@ async function ppuUpload() {
   canvas.width = OUT; canvas.height = OUT;
   const ctx = canvas.getContext('2d');
 
-  // Detect if image has transparent background
-  const isTransparent = ppuDetectTransparency(
-    img, ppuState.x, ppuState.y, ppuState.scale, ppuState.naturalW, ppuState.naturalH
-  );
+  // Detect if image has transparent background (check original image, not crop)
+  const isTransparent = ppuDetectTransparency(img);
 
   const scaleRatio = OUT / PPU_SIZE;
 
   if (isTransparent) {
-    // Transparent background — no circle clip, preserve transparency, draw as-is
+    // Transparent image — draw without clipping, canvas stays transparent
+    // canvas default is transparent so no fill needed
     ctx.drawImage(img,
       ppuState.x * scaleRatio, ppuState.y * scaleRatio,
       ppuState.naturalW * ppuState.scale * scaleRatio,
       ppuState.naturalH * ppuState.scale * scaleRatio
     );
   } else {
-    // Solid background — clip to circle as normal
+    // Solid background — clip to circle
     ctx.beginPath(); ctx.arc(OUT/2, OUT/2, OUT/2, 0, Math.PI*2); ctx.clip();
     ctx.drawImage(img,
       ppuState.x * scaleRatio, ppuState.y * scaleRatio,
@@ -429,10 +429,10 @@ async function ppuUpload() {
     );
   }
 
-  // For transparent images keep PNG (preserves alpha), otherwise use JPEG
+  // Transparent images use PNG to preserve alpha; solid use JPEG for size
   let dataUrl;
   if (isTransparent) {
-    dataUrl = canvas.toDataURL('image/png');
+    dataUrl = canvas.toDataURL('image/png'); // preserves alpha — no black bg
   } else {
     let quality = 0.85;
     do {
@@ -461,7 +461,7 @@ async function ppuUpload() {
     if (res.success) {
       statusEl.textContent = '✅ Saved! Refreshing…';
       cachedProfilePicDataUri = null;
-      cachedProfilePicIsPersonal = !isTransparent; // transparent = treat like flower
+      cachedProfilePicIsPersonal = !isTransparent; // transparent uploads show as flower (no circle)
       setTimeout(function() {
         updateProfileCorner();
         closePpuModal();
@@ -482,9 +482,10 @@ function initGoogleAuth() {}
 
 // TWO — Use default profile pic (delete personal pic)
 async function useDefaultProfilePic() {
-  document.getElementById('logout-popup').style.display = 'none';
+  const popup = document.getElementById('logout-popup');
+  if (popup) popup.style.display = 'none';
   if (!currentUser) return;
-  if (!confirm('This will remove your personal profile pic and restore the default. Continue?')) return;
+  if (!confirm('This will remove your personal profile pic and restore the default tier image. Continue?')) return;
   try {
     const formData = new FormData();
     formData.append('action', 'deleteProfilePic');
@@ -494,7 +495,7 @@ async function useDefaultProfilePic() {
     if (res.success) {
       cachedProfilePicDataUri = null;
       cachedProfilePicIsPersonal = false;
-      updateProfileCorner();
+      updateProfileCorner(); // reloads from GAS — will get tier default
     } else {
       alert('Could not remove profile pic: ' + (res.error || 'Unknown error'));
     }
