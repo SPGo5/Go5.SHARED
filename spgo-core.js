@@ -334,10 +334,9 @@ function ppuFileChosen(input) {
       ppuApplyTransform();
       document.getElementById('ppu-step1').style.display = 'none';
       document.getElementById('ppu-step2').style.display = 'flex';
-      // Show Fit button only for transparent images
-      const isTransp = ppuDetectTransparency(img);
+      // Fit button always visible in step 2
       const fitBtn = document.getElementById('ppu-fit-btn');
-      if (fitBtn) fitBtn.style.display = isTransp ? 'block' : 'none';
+      if (fitBtn) fitBtn.style.display = 'block';
     };
     img.src = e.target.result;
   };
