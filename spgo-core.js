@@ -376,43 +376,74 @@ function ppuZoom(delta) {
   else setupDrag();
 })();
 
+function ppuDetectTransparency(img, x, y, scale, naturalW, naturalH) {
+  // Sample corners and edges of the image for transparent pixels
+  const testCanvas = document.createElement('canvas');
+  testCanvas.width = PPU_SIZE; testCanvas.height = PPU_SIZE;
+  const testCtx = testCanvas.getContext('2d');
+  testCtx.drawImage(img, x, y, naturalW * scale, naturalH * scale);
+  const corners = [
+    [2, 2], [PPU_SIZE-2, 2], [2, PPU_SIZE-2], [PPU_SIZE-2, PPU_SIZE-2],
+    [PPU_SIZE/2, 2], [2, PPU_SIZE/2], [PPU_SIZE-2, PPU_SIZE/2], [PPU_SIZE/2, PPU_SIZE-2]
+  ];
+  let transparentCount = 0;
+  for (const [cx, cy] of corners) {
+    const pixel = testCtx.getImageData(cx, cy, 1, 1).data;
+    if (pixel[3] < 30) transparentCount++; // alpha < 30 = transparent
+  }
+  return transparentCount >= 4; // at least half the sample points are transparent
+}
+
 async function ppuUpload() {
   const statusEl = document.getElementById('ppu-status');
   const btn = document.getElementById('ppu-upload-btn');
   const img = document.getElementById('ppu-img');
   if (!img.src) return;
 
-  // Draw cropped circle to canvas at 400×400px output
   const OUT = 400;
   const canvas = document.createElement('canvas');
   canvas.width = OUT; canvas.height = OUT;
   const ctx = canvas.getContext('2d');
 
-  // Clip to circle
-  ctx.beginPath(); ctx.arc(OUT/2, OUT/2, OUT/2, 0, Math.PI*2); ctx.clip();
-
-  // Scale from PPU_SIZE coords to OUT coords
-  const scaleRatio = OUT / PPU_SIZE;
-  ctx.drawImage(img,
-    ppuState.x * scaleRatio, ppuState.y * scaleRatio,
-    ppuState.naturalW * ppuState.scale * scaleRatio,
-    ppuState.naturalH * ppuState.scale * scaleRatio
+  // Detect if image has transparent background
+  const isTransparent = ppuDetectTransparency(
+    img, ppuState.x, ppuState.y, ppuState.scale, ppuState.naturalW, ppuState.naturalH
   );
 
-  // Compress: start at quality 0.85, reduce if > 300KB
-  let quality = 0.85;
+  const scaleRatio = OUT / PPU_SIZE;
+
+  if (isTransparent) {
+    // Transparent background — no circle clip, preserve transparency, draw as-is
+    ctx.drawImage(img,
+      ppuState.x * scaleRatio, ppuState.y * scaleRatio,
+      ppuState.naturalW * ppuState.scale * scaleRatio,
+      ppuState.naturalH * ppuState.scale * scaleRatio
+    );
+  } else {
+    // Solid background — clip to circle as normal
+    ctx.beginPath(); ctx.arc(OUT/2, OUT/2, OUT/2, 0, Math.PI*2); ctx.clip();
+    ctx.drawImage(img,
+      ppuState.x * scaleRatio, ppuState.y * scaleRatio,
+      ppuState.naturalW * ppuState.scale * scaleRatio,
+      ppuState.naturalH * ppuState.scale * scaleRatio
+    );
+  }
+
+  // For transparent images keep PNG (preserves alpha), otherwise use JPEG
   let dataUrl;
-  do {
+  if (isTransparent) {
     dataUrl = canvas.toDataURL('image/png');
-    // PNG doesn't have quality param — convert to JPEG for size control
-    dataUrl = canvas.toDataURL('image/jpeg', quality);
-    quality -= 0.1;
-  } while (dataUrl.length > 400000 && quality > 0.3);
+  } else {
+    let quality = 0.85;
+    do {
+      dataUrl = canvas.toDataURL('image/jpeg', quality);
+      quality -= 0.1;
+    } while (dataUrl.length > 400000 && quality > 0.3);
+  }
 
   btn.disabled = true;
   statusEl.textContent = 'Uploading…';
 
-  // Strip data URI prefix for GAS
   const base64 = dataUrl.split(',')[1];
 
   try {
@@ -420,6 +451,7 @@ async function ppuUpload() {
     formData.append('action', 'saveProfilePic');
     formData.append('idCode', currentUser);
     formData.append('data', base64);
+    formData.append('isTransparent', isTransparent ? '1' : '0');
     const response = await fetch(GAS_URL, {
       method: 'POST',
       body: formData
@@ -429,7 +461,7 @@ async function ppuUpload() {
     if (res.success) {
       statusEl.textContent = '✅ Saved! Refreshing…';
       cachedProfilePicDataUri = null;
-      cachedProfilePicIsPersonal = false;
+      cachedProfilePicIsPersonal = !isTransparent; // transparent = treat like flower
       setTimeout(function() {
         updateProfileCorner();
         closePpuModal();
@@ -447,6 +479,29 @@ function showIdInput() {}
 function loginWithId() {}
 function handleGoogleLogin() {}
 function initGoogleAuth() {}
+
+// TWO — Use default profile pic (delete personal pic)
+async function useDefaultProfilePic() {
+  document.getElementById('logout-popup').style.display = 'none';
+  if (!currentUser) return;
+  if (!confirm('This will remove your personal profile pic and restore the default. Continue?')) return;
+  try {
+    const formData = new FormData();
+    formData.append('action', 'deleteProfilePic');
+    formData.append('idCode', currentUser);
+    const response = await fetch(GAS_URL, { method: 'POST', body: formData });
+    const res = await response.json();
+    if (res.success) {
+      cachedProfilePicDataUri = null;
+      cachedProfilePicIsPersonal = false;
+      updateProfileCorner();
+    } else {
+      alert('Could not remove profile pic: ' + (res.error || 'Unknown error'));
+    }
+  } catch(err) {
+    alert('Connection error. Try again.');
+  }
+}
 
 function guestLogin() {
   currentUser = null;
