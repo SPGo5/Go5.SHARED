@@ -471,3 +471,29 @@ html, body {
   font-size: 13px;
   letter-spacing: 0.1em;
 }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.portal-footer {
+  margin-top: 60px;
+  width: 100%;
+  max-width: 420px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  text-align: center;
+}
+.footer-credit {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  font-style: italic;
+  line-height: 1.8;
+}
+.footer-credit strong { color: rgba(0,191,255,0.5); font-style: normal; font-weight: 400; }
+.footer-copy {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.2);
+  margin-top: 4px;
+}
