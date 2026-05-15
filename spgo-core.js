@@ -57,6 +57,87 @@ function gasJsonp(params, onSuccess, onError, timeoutMs) {
 }
 const GOOGLE_CLIENT_ID = '427989206862-svhf1cote22nhdhkq68ff14446upp2m4.apps.googleusercontent.com';
 
+// ============================================================
+// INJECT SHARED HTML
+// Auto-injects profile corner, logout popup, and profile pic
+// modal into every portal that loads this script.
+// Portals never need to include this HTML manually.
+// ============================================================
+function injectSharedHTML() {
+  if (document.getElementById('spgo-shared-injected')) return;
+  const marker = document.createElement('div');
+  marker.id = 'spgo-shared-injected';
+  marker.style.display = 'none';
+  document.body.appendChild(marker);
+
+  // Profile corner (top-right)
+  if (!document.getElementById('profile-corner')) {
+    const corner = document.createElement('div');
+    corner.id = 'profile-corner';
+    corner.setAttribute('onclick', 'toggleLogoutPopup()');
+    corner.style.cssText = 'display:none; position:fixed; top:12px; right:14px; z-index:9999; flex-direction:column; align-items:center; cursor:pointer; -webkit-tap-highlight-color:transparent;';
+    corner.innerHTML = `
+      <img id="profile-corner-img" src="" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,191,255,0.5);box-shadow:0 0 10px rgba(0,191,255,0.3);">
+      <div id="profile-corner-code" style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.08em;color:rgba(0,191,255,0.7);margin-top:3px;max-width:50px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+    `;
+    document.body.appendChild(corner);
+  }
+
+  // Logout popup — 3 buttons
+  if (!document.getElementById('logout-popup')) {
+    const popup = document.createElement('div');
+    popup.id = 'logout-popup';
+    popup.style.cssText = 'display:none; position:fixed; top:60px; right:10px; z-index:9999; background:rgba(0,0,60,0.97); border:1px solid rgba(0,191,255,0.35); border-radius:12px; padding:14px 18px; flex-direction:column; gap:10px; box-shadow:0 8px 24px rgba(0,0,0,0.5); min-width:160px;';
+    popup.innerHTML = `
+      <button onclick="showProfilePicUploader()" style="background:none;border:1px solid rgba(0,191,255,0.4);color:rgba(0,191,255,0.85);font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.08em;padding:10px 14px;border-radius:8px;cursor:pointer;text-align:left;">👤 Change profile pic</button>
+      <button onclick="useDefaultProfilePic()" style="background:none;border:1px solid rgba(0,191,255,0.3);color:rgba(0,191,255,0.65);font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.08em;padding:10px 14px;border-radius:8px;cursor:pointer;text-align:left;">👤 Use default profile pic</button>
+      <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,80,80,0.5);color:rgba(255,150,150,0.9);font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.1em;padding:10px 14px;border-radius:8px;cursor:pointer;text-align:left;">⟵ Log out</button>
+    `;
+    document.body.appendChild(popup);
+  }
+
+  // Profile pic uploader modal
+  if (!document.getElementById('profile-pic-modal')) {
+    const modal = document.createElement('div');
+    modal.id = 'profile-pic-modal';
+    modal.style.cssText = 'display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,40,0.92); flex-direction:column; align-items:center; justify-content:center; padding:24px;';
+    modal.innerHTML = `
+      <div style="background:#000073; border:1px solid rgba(0,191,255,0.3); border-radius:16px; padding:24px; width:100%; max-width:380px; display:flex; flex-direction:column; align-items:center; gap:16px;">
+        <div style="font-family:'Cinzel',serif; font-size:14px; color:#00BFFF; letter-spacing:0.12em;">Change Profile Pic</div>
+        <div style="font-family:'Crimson Pro',serif; font-size:12px; font-style:italic; color:rgba(255,100,100,0.8); text-align:center;">Replacing this photo permanently deletes it. There's no profile album like Facebook.</div>
+        <div id="ppu-step1" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:12px;">
+          <label style="width:100%; padding:14px; background:rgba(0,191,255,0.1); border:1px dashed rgba(0,191,255,0.4); border-radius:10px; text-align:center; cursor:pointer; font-family:'Crimson Pro',serif; font-size:14px; color:#00BFFF;">
+            📁 Pick a photo
+            <input type="file" accept="image/*" id="ppu-file-input" style="display:none;" onchange="ppuFileChosen(this)">
+          </label>
+        </div>
+        <div id="ppu-step2" style="display:none; width:100%; flex-direction:column; align-items:center; gap:12px;">
+          <div style="font-family:'Crimson Pro',serif; font-size:12px; color:rgba(255,255,255,0.6); text-align:center;">Drag to reposition · Pinch or scroll to zoom</div>
+          <div style="font-family:'Crimson Pro',serif; font-size:11px; color:rgba(204,255,0,0.6); text-align:center; font-style:italic; margin-top:-6px;">Tap the circle to pick a different photo</div>
+          <div id="ppu-crop-wrap" style="position:relative; width:260px; height:260px; border-radius:50%; overflow:hidden; border:3px solid rgba(204,255,0,0.8); cursor:grab; touch-action:none; flex-shrink:0;" ondblclick="document.getElementById('ppu-file-input').click()">
+            <img id="ppu-img" style="position:absolute; transform-origin:top left;" draggable="false">
+          </div>
+          <div style="display:flex; gap:10px; width:100%;">
+            <button onclick="ppuZoom(-0.1)" style="flex:1; padding:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:white; border-radius:8px; font-size:18px; cursor:pointer;">−</button>
+            <button onclick="ppuZoom(0.1)"  style="flex:1; padding:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:white; border-radius:8px; font-size:18px; cursor:pointer;">+</button>
+          </div>
+          <button id="ppu-fit-btn" onclick="ppuFitObject()" style="width:100%; padding:10px; background:rgba(204,255,0,0.12); border:1px solid rgba(204,255,0,0.5); color:#ccff00; border-radius:8px; font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.1em; cursor:pointer;">⊡ Fit object inside circle</button>
+          <button onclick="ppuUpload()" id="ppu-upload-btn" style="width:100%; padding:14px; background:#00BFFF; color:#000073; font-family:'Cinzel',serif; font-size:13px; font-weight:700; border:none; border-radius:10px; cursor:pointer; letter-spacing:0.1em;">Save & Upload</button>
+          <div id="ppu-status" style="font-family:'Crimson Pro',serif; font-size:13px; color:rgba(255,255,255,0.7); font-style:italic; text-align:center; min-height:20px;"></div>
+        </div>
+        <button onclick="closePpuModal()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-family:'Cinzel',serif; font-size:11px; cursor:pointer; letter-spacing:0.1em;">✕ Cancel</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', injectSharedHTML);
+} else {
+  injectSharedHTML();
+}
+
 // On page load — check if returning from Google OAuth redirect
 // (runs after all functions are defined)
 function checkOAuthReturn() {
