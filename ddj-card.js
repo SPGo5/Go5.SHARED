@@ -280,6 +280,30 @@
     setTimeout(function() { el.style.opacity = '0'; }, 2400);
   }
 
+  // ── Shared footer renderer ────────────────────────────────────────
+  // Call SPGo.renderFooter('container-id') in any portal.
+  // The container must exist; renderFooter appends the footer div into it.
+  function renderFooter(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    // avoid duplicates on re-render
+    const existing = container.querySelector('.spgo-shared-footer');
+    if (existing) existing.remove();
+    const footer = document.createElement('div');
+    footer.className = 'spgo-shared-footer';
+    footer.style.cssText = 'margin-top:48px;width:100%;padding:16px 0;border-top:1px solid rgba(255,255,255,0.06);text-align:center;';
+    footer.innerHTML = `
+      <div style="font-size:11px;color:rgba(255,255,255,.25);font-style:italic;line-height:1.8;">
+        Developed by <strong style="color:rgba(0,191,255,.5);font-style:normal;font-weight:400;">Claude</strong>
+        · Conceived &amp; directed by <strong style="color:rgba(0,191,255,.5);font-style:normal;font-weight:400;">SPGo</strong>
+      </div>
+      <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.2);margin-top:4px;">
+        © 2026 · SPGo · All rights reserved
+      </div>
+    `;
+    container.appendChild(footer);
+  }
+
   // ── Public API ────────────────────────────────────────────────────
   window.DDJCard = {
     fetch: fetchChapter,
@@ -288,5 +312,9 @@
     copyText: copyText,
     showConfirm: showConfirm
   };
+
+  // SPGo namespace for shared utilities
+  window.SPGo = window.SPGo || {};
+  window.SPGo.renderFooter = renderFooter;
 
 })();
