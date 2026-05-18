@@ -109,6 +109,11 @@ function checkOAuthReturn() {
     const params = new URLSearchParams(hash.replace('#', ''));
     const token = params.get('access_token');
     if (token) {
+      // IMPORTANT: save the token to sessionStorage BEFORE clearing the hash.
+      // Mobile Chrome can interrupt async flows mid-flight; keeping the token
+      // in sessionStorage means it survives even if the page briefly reloads.
+      try { sessionStorage.setItem('go_pending_token', token); } catch(e) {}
+      // Only now is it safe to clean up the URL hash.
       history.replaceState({}, '', window.location.pathname);
       validateWithToken(token);
     }
@@ -154,6 +159,8 @@ async function validateWithToken(token) {
             hasBara: currentHasBara, tier: currentTier,
             email: email, savedAt: Date.now()
           }));
+          // Token safely committed — clear the sessionStorage safety net
+          sessionStorage.removeItem('go_pending_token');
         } catch(e) {}
         setHomeState();
         updateProfileCorner();
