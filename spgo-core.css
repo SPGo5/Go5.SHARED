@@ -77,12 +77,6 @@ button:active, a.card:active, [onclick]:active {
   text-align: left;
 }
 #logout-popup button:active { opacity: 0.7; }
-/* Explicit active for inline copy/action buttons */
-.kw-action-btn:active, .copy-btn-pair button:active {
-  transform: scale(0.94) !important;
-  opacity: 0.7 !important;
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.4) !important;
-}
 
 /* ============================================================
    RESET & VARIABLES
@@ -90,6 +84,7 @@ button:active, a.card:active, [onclick]:active {
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 :root {
+  /* ── Base palette ── */
   --navy: #000073;
   --navy-dark: #00004a;
   --sky: #00BFFF;
@@ -107,6 +102,38 @@ button:active, a.card:active, [onclick]:active {
   --pink: #F3ABB6;
   --purple: #E0B0FF;
   --grey-text: #D0D2CF;
+
+  /* ── Design tokens: node type colours ── */
+  --color-hub-bg:        #000073;
+  --color-hub-border:    #00BFFF;
+  --color-hub-glow:      rgba(0,191,255,0.5);
+  --color-portal-bg:     #0CDD08;
+  --color-portal-border: #09AA05;
+  --color-portal-glow:   rgba(12,221,8,0.5);
+  --color-ext-bg:        #E0B0FF;
+  --color-ext-border:    #8833CC;
+  --color-ext-glow:      rgba(136,51,204,0.5);
+  --color-tool-bg:       #00BFFF;
+  --color-tool-border:   #0090CC;
+  --color-tool-glow:     rgba(0,191,255,0.6);
+  --color-screen-bg:     #E8E8FF;
+  --color-screen-border: #4455AA;
+  --color-screen-glow:   rgba(68,85,170,0.45);
+
+  /* ── Design tokens: typography ── */
+  --font-name1:          'Cinzel', serif;
+  --font-name2:          'Grey Qo', cursive;
+  --color-name2:         #e0b0ff;
+  --color-ext-name1:     #9900ff;
+
+  /* ── Design tokens: button geometry ── */
+  --btn-radius:          10px;
+  --btn-border-linked:   2.5px;
+  --btn-border-default:  1.5px;
+  --btn-bevel:           linear-gradient(180deg,
+                           rgba(255,255,255,0.22) 0%,
+                           rgba(255,255,255,0.05) 45%,
+                           rgba(0,0,0,0.15) 100%);
 }
 
 html, body {
@@ -261,6 +288,19 @@ html, body {
 .card-desc { font-size: 13px; color: rgba(255,255,255,0.5); }
 .card-desc2 { font-size: 12px; color: var(--sky); margin-top: 4px; opacity: 0.7; }
 .card-arrow { color: var(--sky); font-size: 20px; flex-shrink: 0; }
+/* ── Node-type card colours — edit here to change globally ── */
+.card-alias  { font-family: var(--font-name2); font-weight: 400; font-size: 16px; color: var(--color-name2); }
+.card-hub    { background: var(--color-hub-bg);    border-color: var(--color-hub-border);    box-shadow: 0 2px 12px var(--color-hub-glow); }
+.card-portal { background: var(--color-portal-bg); border-color: var(--color-portal-border); box-shadow: 0 2px 12px var(--color-portal-glow); }
+.card-ext    { background: var(--color-ext-bg);    border-color: var(--color-ext-border);    box-shadow: 0 2px 12px var(--color-ext-glow); }
+.card-tool   { background: var(--color-tool-bg);   border-color: var(--color-tool-border);   box-shadow: 0 2px 12px var(--color-tool-glow); }
+.card-hub    .card-title, .card-portal .card-title, .card-tool .card-title { color: #ffffff; }
+.card-ext    .card-title   { color: var(--color-ext-name1); }
+.card-hub    .card-arrow, .card-portal .card-arrow, .card-tool .card-arrow { color: rgba(255,255,255,0.7); }
+.card-ext    .card-arrow   { color: var(--color-ext-border); }
+.card-hub    .card-desc, .card-portal .card-desc, .card-tool .card-desc    { color: rgba(255,255,255,0.75); }
+.card-ext    .card-desc    { color: rgba(80,0,120,0.85); }
+.card-hub    .card-icon img, .card-portal .card-icon img, .card-tool .card-icon img { filter: brightness(1.1); }
 
 /* INNER SCREEN HEADER */
 .inner-header {
@@ -471,28 +511,92 @@ html, body {
   font-size: 13px;
   letter-spacing: 0.1em;
 }
+
 /* ============================================================
-   FOOTER
+   SCREEN 0 — LOGIN
    ============================================================ */
-.portal-footer {
-  margin-top: 60px;
+#screen-B0-login .id-input {
   width: 100%;
   max-width: 420px;
-  padding: 16px 0;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 14px 16px;
+  border: 2px solid rgba(0,191,255,0.3);
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.1em;
+  background: rgba(0,0,0,0.3);
+  color: white;
+  outline: none;
+  text-align: center;
+  text-transform: uppercase;
+  display: none;
+  margin-top: 14px;
+}
+#screen-B0-login .id-input::placeholder { color: rgba(255,255,255,0.25); }
+#screen-B0-login .id-input:focus { border-color: var(--sky); }
+#btn-go-id {
+  width: 100%;
+  max-width: 420px;
+  padding: 14px;
+  background: var(--sky);
+  color: var(--navy);
+  border: none;
+  border-radius: 12px;
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  display: none;
+  margin-top: 10px;
+}
+.login-note {
+  font-size: 13px;
+  color: var(--text-mid);
+  text-align: center;
+  margin-top: 24px;
+  max-width: 320px;
+  line-height: 1.7;
+}
+
+/* ============================================================
+   UNIVERSAL LOADING STATE — SPGo Super Portal Design System
+   All loading/status text across the portal must use:
+   - Font: Crimson Pro, italic
+   - Color: #ccff00 (lime) while loading, rgba(255,255,255,0.5) on error
+   - Animation: haircutPulse 1.2s ease-in-out infinite
+   - Text: "Loading…" (never "Loading your charts...", "Searching...", etc.)
+   - Apply class "sp-loading" to any loading text element
+   - Apply class "sp-loading-img" to any logo image shown while loading
+   The verifying screen also follows this pattern.
+   ============================================================ */
+.sp-loading {
+  font-family: 'Crimson Pro', serif !important;
+  font-style: italic !important;
+  font-size: 15px !important;
+  color: #ccff00 !important;
+  animation: haircutPulse 1.2s ease-in-out infinite !important;
   text-align: center;
 }
-.footer-credit {
-  font-size: 11px;
-  color: rgba(255,255,255,0.25);
-  font-style: italic;
-  line-height: 1.8;
+.sp-loading-img {
+  animation: haircutGlowBlob 1.6s ease-in-out infinite !important;
 }
-.footer-credit strong { color: rgba(0,191,255,0.5); font-style: normal; font-weight: 400; }
-.footer-copy {
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.2);
-  margin-top: 4px;
+
+@keyframes haircutGlowBlob {
+  0%,100% { filter: drop-shadow(0 0 6px rgba(204,255,0,0.9)) drop-shadow(0 0 20px rgba(204,255,0,0.5)); transform: scale(1); }
+  50%      { filter: drop-shadow(0 0 18px rgba(204,255,0,1)) drop-shadow(0 0 40px rgba(204,255,0,0.7)); transform: scale(1.07); }
 }
+@keyframes haircutPulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+.fcs-container { border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.12); margin-bottom:16px; background:rgba(255,255,255,0.04); }
+.fcs-section-label { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.15em; color:#ffffff; text-transform:uppercase; text-align:center; margin-bottom:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.1); }
+.fcs-row { display:flex; flex-direction:row; align-items:stretch; gap:0; margin-bottom:0; border-radius:0; overflow:hidden; border:none; border-bottom:1px solid rgba(255,255,255,0.06); background:transparent; }
+.fcs-row:last-child { border-bottom:none; }
+.fcs-emoji-box { width:64px; min-width:64px; background:transparent; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; padding:8px; gap:2px; font-size:18px; line-height:1.3; border-right:1px solid rgba(255,255,255,0.07); }
+.fcs-mr-box { flex:1; background:transparent; padding:12px 14px; display:flex; flex-direction:column; justify-content:center; gap:3px; }
+.fcs-cn { font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700; color:#ff6666; line-height:1.3; }
+.fcs-vn { font-family:'Noto Serif TC',serif; font-size:13px; color:#cc88ff; line-height:1.3; }
+.fcs-en { font-family:'Roboto',sans-serif; font-size:12px; color:#ffffff; opacity:0.85; line-height:1.3; }
+.fcs-check-box { width:32px; min-width:32px; background:rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; font-size:16px; color:#00cc44; }
