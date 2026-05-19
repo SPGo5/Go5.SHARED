@@ -290,17 +290,17 @@ html, body {
 .card-arrow { color: var(--sky); font-size: 20px; flex-shrink: 0; }
 /* ── Node-type card colours — edit here to change globally ── */
 .card-alias  { font-family: var(--font-name2); font-weight: 400; font-size: 16px; color: var(--color-name2); }
-.card-hub    { background: var(--color-hub-bg);    border-color: var(--color-hub-border);    box-shadow: 0 2px 12px var(--color-hub-glow); }
-.card-portal { background: var(--color-portal-bg); border-color: var(--color-portal-border); box-shadow: 0 2px 12px var(--color-portal-glow); }
-.card-ext    { background: var(--color-ext-bg);    border-color: var(--color-ext-border);    box-shadow: 0 2px 12px var(--color-ext-glow); }
-.card-tool   { background: var(--color-tool-bg);   border-color: var(--color-tool-border);   box-shadow: 0 2px 12px var(--color-tool-glow); }
-.card-hub    .card-title, .card-portal .card-title, .card-tool .card-title { color: #ffffff; }
-.card-ext    .card-title   { color: var(--color-ext-name1); }
-.card-hub    .card-arrow, .card-portal .card-arrow, .card-tool .card-arrow { color: rgba(255,255,255,0.7); }
-.card-ext    .card-arrow   { color: var(--color-ext-border); }
-.card-hub    .card-desc, .card-portal .card-desc, .card-tool .card-desc    { color: rgba(255,255,255,0.75); }
-.card-ext    .card-desc    { color: rgba(80,0,120,0.85); }
-.card-hub    .card-icon img, .card-portal .card-icon img, .card-tool .card-icon img { filter: brightness(1.1); }
+.card.card-hub    { background: var(--color-hub-bg);    border-color: var(--color-hub-border);    box-shadow: 0 2px 12px var(--color-hub-glow); }
+.card.card-portal { background: var(--color-portal-bg); border-color: var(--color-portal-border); box-shadow: 0 2px 12px var(--color-portal-glow); }
+.card.card-ext    { background: var(--color-ext-bg);    border-color: var(--color-ext-border);    box-shadow: 0 2px 12px var(--color-ext-glow); }
+.card.card-tool   { background: var(--color-tool-bg);   border-color: var(--color-tool-border);   box-shadow: 0 2px 12px var(--color-tool-glow); }
+.card.card-hub    .card-title, .card.card-portal .card-title, .card.card-tool .card-title { color: #ffffff; }
+.card.card-ext    .card-title   { color: var(--color-ext-name1); }
+.card.card-hub    .card-arrow, .card.card-portal .card-arrow, .card.card-tool .card-arrow { color: rgba(255,255,255,0.7); }
+.card.card-ext    .card-arrow   { color: var(--color-ext-border); }
+.card.card-hub    .card-desc, .card.card-portal .card-desc, .card.card-tool .card-desc    { color: rgba(255,255,255,0.75); }
+.card.card-ext    .card-desc    { color: rgba(80,0,120,0.85); }
+.card.card-hub    .card-icon img, .card.card-portal .card-icon img, .card.card-tool .card-icon img { filter: brightness(1.1); }
 
 /* INNER SCREEN HEADER */
 .inner-header {
