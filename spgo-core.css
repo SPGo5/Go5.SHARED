@@ -1,69 +1,63 @@
-/* Global touch feedback — every button gets a press feel */
+<!--
+  ════════════════════════════════════════════════════════════
+  SPGo PORTAL — DESIGN SYSTEM RULES FOR CLAUDE
+  ════════════════════════════════════════════════════════════
+  This portal is part of the SPGo design system.
+  All shared design tokens (colours, fonts, button styles,
+  card types, header, footer) are defined in:
+    https://spgo5.github.io/Go5.SHARED/spgo-core.css
+    https://spgo5.github.io/Go5.SHARED/spgo-core.js
+
+  RULES:
+  1. NEVER redefine .card-hub, .card-portal, .card-ext,
+     .card-tool, .card-screen, or .card-alias locally.
+     Edit spgo-core.css instead.
+  2. NEVER redefine .portal-footer, .footer-credit,
+     or .footer-copy locally. Footer is shared.
+  3. NEVER redefine .inner-header locally.
+  4. To change any button colour, font, or style globally,
+     edit the CSS variable in spgo-core.css :root block.
+  5. Portal-specific CSS (e.g. map, chart viewer) is
+     allowed in the local <style> block only if it does
+     not override any shared token or class.
+  ════════════════════════════════════════════════════════════
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title> 觀音靈簽 GYO (Tsutsuji) </title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Beau+Rivage&family=Ma+Shan+Zheng&family=Klee+One&family=Corinthia&family=Aleo:wght@300;400;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="alternate" type="application/json+oembed" href="https://SPGo5.github.io/Go5.GYO/oembed.json" title="觀音靈簽 GYO · Divination (i) Tsutsuji">
+  <meta property="og:title" content="🔮 觀音靈簽 GYO · Guanyin Oracle">
+  <meta property="og:description" content="Divination (i) Tsutsuji — Guanyin Oracle">
+  <meta property="og:image" content="https://i.postimg.cc/NFwtVVDY/Tsutsuji-portal-logo-KY-with-tsutsuji-cropped.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/ZnhmggH0/Tsutsuji-Portal-logo-051926-Square.png">
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/ZnhmggH0/Tsutsuji-Portal-logo-051926-Square.png">
+
+  <link rel="stylesheet" href="https://spgo5.github.io/Go5.SHARED/spgo-core.css">
+<style>
+
+/* ── GYO Portal-specific CSS only ── */
+
+/* Touch feedback */
 button:active, a.card:active, [onclick]:active {
   opacity: 0.75 !important;
   transform: scale(0.96) !important;
   transition: opacity 0.08s, transform 0.08s !important;
 }
 
-/* Profile pic top-right */
-#profile-corner {
-  position: fixed;
-  top: 12px;
-  right: 14px;
-  z-index: 9999;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-#profile-corner img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid rgba(0,191,255,0.5);
-  box-shadow: 0 0 10px rgba(0,191,255,0.3);
-}
-#profile-corner img.flower-pic {
-  border-radius: 0;
-  border: none;
-  background: transparent;
-  object-fit: contain;
-  box-shadow: none;
-  filter: drop-shadow(0 0 6px rgba(0,191,255,0.7)) drop-shadow(0 0 14px rgba(0,191,255,0.4));
-  width: 42px;
-  height: 42px;
-}
-#profile-corner-code {
-  font-family: 'Cinzel', serif;
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  color: rgba(0,191,255,0.7);
-  margin-top: 3px;
-  max-width: 50px;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* Explicit active for inline action buttons */
+.kw-action-btn:active, .copy-btn-pair button:active {
+  transform: scale(0.94) !important;
+  opacity: 0.7 !important;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.4) !important;
 }
 
-/* Logout popup */
-#logout-popup {
-  position: fixed;
-  top: 60px;
-  right: 10px;
-  z-index: 9999;
-  background: rgba(0,0,60,0.97);
-  border: 1px solid rgba(0,191,255,0.35);
-  border-radius: 12px;
-  padding: 14px 18px;
-  display: none;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  min-width: 160px;
-}
+/* Logout popup button overrides */
 #logout-popup button {
   background: none;
   border: 1px solid rgba(255,80,80,0.5);
@@ -76,103 +70,288 @@ button:active, a.card:active, [onclick]:active {
   cursor: pointer;
   text-align: left;
 }
-#logout-popup button:active { opacity: 0.7; }
-
-/* ============================================================
-   RESET & VARIABLES
-   ============================================================ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-:root {
-  /* ── Base palette ── */
-  --navy: #000073;
-  --navy-dark: #00004a;
-  --sky: #00BFFF;
-  --white: #ffffff;
-  --dim: rgba(255,255,255,0.12);
-  --dim2: rgba(255,255,255,0.06);
-  --border: rgba(0,191,255,0.25);
-  --border-dim: rgba(255,255,255,0.08);
-  --text: #ffffff;
-  --text-mid: rgba(255,255,255,0.5);
-  --text-dim: rgba(255,255,255,0.35);
-  --red: #ff0000;
-  --green: #00cc44;
-  --gold: #FFD700;
-  --pink: #F3ABB6;
-  --purple: #E0B0FF;
-  --grey-text: #D0D2CF;
-
-  /* ── Design tokens: node type colours ── */
-  --color-hub-bg:        #000073;
-  --color-hub-border:    #00BFFF;
-  --color-hub-glow:      rgba(0,191,255,0.5);
-  --color-portal-bg:     #0CDD08;
-  --color-portal-border: #09AA05;
-  --color-portal-glow:   rgba(12,221,8,0.5);
-  --color-ext-bg:        #E0B0FF;
-  --color-ext-border:    #8833CC;
-  --color-ext-glow:      rgba(136,51,204,0.5);
-  --color-tool-bg:       #00BFFF;
-  --color-tool-border:   #0090CC;
-  --color-tool-glow:     rgba(0,191,255,0.6);
-  --color-screen-bg:     #E8E8FF;
-  --color-screen-border: #4455AA;
-  --color-screen-glow:   rgba(68,85,170,0.45);
-
-  /* ── Design tokens: typography ── */
-  --font-name1:          'Cinzel', serif;
-  --font-name2:          'Grey Qo', cursive;
-  --color-name2:         #e0b0ff;
-  --color-ext-name1:     #9900ff;
-
-  /* ── Design tokens: button geometry ── */
-  --btn-radius:          10px;
-  --btn-border-linked:   2.5px;
-  --btn-border-default:  1.5px;
-  --btn-bevel:           linear-gradient(180deg,
-                           rgba(255,255,255,0.22) 0%,
-                           rgba(255,255,255,0.05) 45%,
-                           rgba(0,0,0,0.15) 100%);
+#logout-popup button.btn-blue {
+  border-color: rgba(0,191,255,0.4);
+  color: rgba(0,191,255,0.85);
 }
 
-html, body {
-  font-family: 'Crimson Pro', Georgia, serif;
-  background: var(--navy);
-  color: var(--text);
+/* ── GYO Login screen ── */
+#screen-gyo-login {
+  background: linear-gradient(180deg, #000073 0%, #00004a 100%);
   min-height: 100dvh;
-  overflow-x: hidden;
-  font-size: 16px;
-}
-
-/* ============================================================
-   SCREEN SYSTEM
-   ============================================================ */
-.screen {
-  display: none;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100dvh;
-  padding: 0 20px 60px;
-  background: radial-gradient(ellipse at 50% 20%, rgba(0,191,255,0.12) 0%, transparent 65%),
-              linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
-  animation: fadeIn 0.35s ease;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
 }
-.screen.active { display: flex; }
 
+/* ── GYO Menu screen ── */
+#screen-gyo-menu {
+  padding-top: 60px;
+}
+.gyo-menu-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.gyo-menu-logo img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(204,255,0,0.7)) drop-shadow(0 0 28px rgba(204,255,0,0.4));
+  margin-bottom: 14px;
+}
+.gyo-menu-logo-title {
+  font-family: 'Klee One', 'Ma Shan Zheng', cursive;
+  font-size: 28px;
+  color: #f5f0e8;
+  text-shadow: 0 0 8px rgba(255,245,80,0.8);
+  margin-bottom: 4px;
+}
+.gyo-menu-logo-sub {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: #e0b0ff;
+  letter-spacing: 0.2em;
+}
+
+/* ── History screen ── */
+#screen-gyo-history { padding-top: 0; }
+.hist-privacy-note {
+  font-family: 'Crimson Pro', serif;
+  font-size: 13px;
+  color: #ff6666;
+  text-align: center;
+  margin-bottom: 18px;
+  max-width: 380px;
+}
+.hist-slot {
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid rgba(0,191,255,0.22);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,0.05);
+  transition: opacity 0.3s;
+}
+.hist-slot.empty {
+  opacity: 0.3;
+  pointer-events: none;
+  border-style: dashed;
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.02);
+}
+.hist-slot-num {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.hist-slot-lot {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: #ccff00;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(204,255,0,0.8);
+  display: inline-block;
+  margin-right: 10px;
+}
+.hist-slot-date {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  color: rgba(255,245,220,0.45);
+  letter-spacing: 0.08em;
+  vertical-align: middle;
+}
+.hist-slot-q {
+  font-family: 'Corinthia', cursive;
+  font-size: 20px;
+  color: #00E5FF;
+  margin: 6px 0 10px;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.hist-slot-empty-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.12em;
+  text-align: center;
+  padding: 12px 0;
+}
+.hist-slot-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.hist-slot-actions button {
+  flex: 1;
+  padding: 9px 4px;
+  border-radius: 8px;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.8);
+  transition: background 0.2s, border-color 0.2s;
+}
+.hist-slot-actions button:active { opacity: 0.7; transform: scale(0.97); }
+.hist-slot-actions .btn-regen { border-color: rgba(0,191,255,0.4); color: #00BFFF; }
+.hist-slot-actions .btn-copy-img { border-color: rgba(255,255,255,0.3); }
+.hist-slot-actions .btn-del { border-color: rgba(255,80,80,0.35); color: rgba(255,130,130,0.8); }
+.hist-replace-warn {
+  font-family: 'Crimson Pro', serif;
+  font-size: 12px;
+  color: #ff6666;
+  text-align: center;
+  margin: 4px 0 8px;
+}
+
+
+
+/* ── GYO Oracle / Draw screen ── */
+#screen-B2-2-2-T2 { padding-bottom: 60px; }
+.kwanyin-title {
+  font-family: 'Klee One', 'Ma Shan Zheng', 'KaiTi', cursive;
+  font-size: 24px;
+  font-weight: 400;
+  text-align: center;
+  letter-spacing: 0.12em;
+  color: #f5f0e8;
+  text-shadow: 0 0 4px rgba(255,245,80,0.95), 0 0 22px rgba(255,248,140,0.45), 0 0 80px rgba(255,253,210,0.08);
+  margin: 20px 0 10px;
+}
+.kwanyin-img {
+  display: block;
+  margin: 0 auto 30px;
+  max-height: 180px;
+  width: auto;
+  filter: drop-shadow(0 0 6px rgba(204,255,0,0.9)) drop-shadow(0 0 22px rgba(204,255,0,0.5)) drop-shadow(0 0 50px rgba(204,255,0,0.2));
+}
+.kw-methods {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 16px;
+}
+.kw-method-card {
+  flex: 1;
+  background: #ffffff;
+  border: 1.5px solid #ffffff;
+  border-radius: 12px;
+  padding: 14px 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  min-width: 0;
+}
+.kw-method-card:hover { background: #e8e8f5; }
+.kw-method-card.active {
+  border: 2.5px solid #000073;
+  background: #e8e8f5;
+  box-shadow: 0 0 0 3px rgba(0,0,115,0.3), 0 0 18px rgba(0,100,255,0.5), inset 0 2px 6px rgba(0,0,0,0.15);
+  transform: scale(1.06);
+  animation: kwMethodGlow 1.4s ease-in-out infinite alternate;
+}
+@keyframes kwMethodGlow {
+  from { box-shadow: 0 0 0 3px rgba(0,0,115,0.2), 0 0 12px rgba(0,100,255,0.35); }
+  to   { box-shadow: 0 0 0 4px rgba(0,0,115,0.4), 0 0 28px rgba(0,100,255,0.7); }
+}
+.kw-method-card:not(.active) { opacity: 0.55; transform: scale(1); }
+.kw-method-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+.kw-method-name {
+  font-family: 'IM Fell English', serif;
+  font-size: clamp(11px, 3vw, 28px);
+  font-weight: 700;
+  display: block;
+  color: #000073;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kw-method-desc { font-size: clamp(9px, 2.5vw, 14px); font-style: italic; color: #000073; }
+
+.kw-stage {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px;
+  padding: 24px 20px 28px;
+  text-align: center;
+  width: 100%;
+  max-width: 420px;
+}
+.kw-number {
+  font-family: 'Ma Shan Zheng', 'IM Fell English', serif;
+  font-size: 110px;
+  font-weight: 400;
+  line-height: 1;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f5f0e8;
+  text-shadow: 0 0 4px rgba(255,245,80,0.95), 0 0 22px rgba(255,248,140,0.45);
+}
+.kw-number.rolling { animation: kw-flicker 0.08s infinite; }
+@keyframes kw-flicker {
+  0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; }
+}
+.kw-fate { font-size: 18px; font-style: italic; color: #c8c0b0; min-height: 26px; margin-bottom: 20px; }
+.kw-btn {
+  font-family: 'IM Fell English', serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #000073;
+  background: #fffde0;
+  border: 1.5px solid #fff9a0;
+  border-radius: 8px;
+  padding: 14px 0;
+  width: 66%;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(255,245,80,0.95), 0 0 22px rgba(255,248,140,0.45);
+  transition: background 0.15s, transform 0.1s;
+}
+.kw-btn:hover { background: #fffaaa; }
+.kw-btn:active { transform: scale(0.98); }
+.kw-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.kw-status { margin-top: 10px; font-size: 16px; font-style: italic; color: #a09888; min-height: 20px; }
+
+/* Loading states */
+.sp-loading {
+  font-family: 'IM Fell English', serif !important;
+  font-style: italic !important;
+  font-size: 15px !important;
+  color: #ccff00 !important;
+  animation: haircutPulse 1.2s ease-in-out infinite !important;
+  text-align: center;
+}
+.sp-loading-img { animation: haircutGlowBlob 1.6s ease-in-out infinite !important; }
+@keyframes haircutGlowBlob {
+  0%,100% { filter: drop-shadow(0 0 6px rgba(204,255,0,0.9)) drop-shadow(0 0 20px rgba(204,255,0,0.5)); transform: scale(1); }
+  50%      { filter: drop-shadow(0 0 18px rgba(204,255,0,1)) drop-shadow(0 0 40px rgba(204,255,0,0.7)); transform: scale(1.07); }
+}
+@keyframes haircutPulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes verifyPulse {
-  0%,100% { opacity:0.7; transform:scale(1); filter:drop-shadow(0 0 14px rgba(0,191,255,0.5)); }
-  50%      { opacity:1;   transform:scale(1.08); filter:drop-shadow(0 0 28px rgba(0,191,255,0.9)); }
-}
-@keyframes verifyDots {
-  0%  { content:'Verifying'; }
-  25% { content:'Verifying.'; }
-  50% { content:'Verifying..'; }
-  75% { content:'Verifying...'; }
 }
 #verify-text::after {
   content:'';
@@ -184,448 +363,855 @@ html, body {
   50% { content:'..'; }
   75% { content:'...'; }
 }
+</style>
+</head>
+<body>
 
-/* ============================================================
-   SHARED COMPONENTS
-   ============================================================ */
-.site-label {
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
-  letter-spacing: 0.2em;
-  color: rgba(255,255,255,0.4);
-  margin: 32px 0 20px;
-  text-align: center;
-}
+<!-- Profile pic corner -->
+<div id="profile-corner" onclick="toggleLogoutPopup()">
+  <img id="profile-corner-img" src="" alt="">
+  <div id="profile-corner-code"></div>
+</div>
+<div id="logout-popup">
+  <button class="btn-blue" onclick="showProfilePicUploader()">👤 Change profile pic</button>
+  <button class="btn-blue" onclick="useDefaultProfilePic()">👤 Use default profile pic</button>
+  <button onclick="doLogout()">⟵ Log out</button>
+</div>
 
-.logo-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 12px;
-}
-.logo-wrap img {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  margin-bottom: 14px;
-  filter: drop-shadow(0 0 18px rgba(0,191,255,0.5));
-}
-.logo-title {
-  font-family: 'Cinzel', serif;
-  font-size: 22px;
-  letter-spacing: 0.2em;
-  color: var(--sky);
-  font-weight: 600;
-}
-.logo-sub {
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.4);
-  margin-top: 8px;
-  text-align: center;
-}
+<!-- Profile Pic Uploader Modal -->
+<div id="profile-pic-modal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,40,0.92); flex-direction:column; align-items:center; justify-content:center; padding:24px;">
+  <div style="background:#000073; border:1px solid rgba(0,191,255,0.3); border-radius:16px; padding:24px; width:100%; max-width:380px; display:flex; flex-direction:column; align-items:center; gap:16px;">
+    <div style="font-family:'Cinzel',serif; font-size:14px; color:var(--sky,#00BFFF); letter-spacing:0.12em;">Change Profile Pic</div>
+    <div style="font-family:'Crimson Pro',serif; font-size:12px; font-style:italic; color:rgba(255,100,100,0.8); text-align:center;">Replacing this photo permanently deletes it. There's no profile album like Facebook.</div>
+    <div id="ppu-step1" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:12px;">
+      <label style="width:100%; padding:14px; background:rgba(0,191,255,0.1); border:1px dashed rgba(0,191,255,0.4); border-radius:10px; text-align:center; cursor:pointer; font-family:'Crimson Pro',serif; font-size:14px; color:#00BFFF;">
+        📁 Pick a photo
+        <input type="file" accept="image/*" id="ppu-file-input" style="display:none;" onchange="ppuFileChosen(this)">
+      </label>
+    </div>
+    <div id="ppu-step2" style="display:none; width:100%; flex-direction:column; align-items:center; gap:12px;">
+      <div style="font-family:'Crimson Pro',serif; font-size:12px; color:rgba(255,255,255,0.6); text-align:center;">Drag to reposition · Pinch or scroll to zoom</div>
+      <div style="font-family:'Crimson Pro',serif; font-size:11px; color:rgba(204,255,0,0.6); text-align:center; font-style:italic; margin-top:-6px;">Tap the circle to pick a different photo</div>
+      <div id="ppu-crop-wrap" style="position:relative; width:260px; height:260px; border-radius:50%; overflow:hidden; border:3px solid rgba(204,255,0,0.8); cursor:grab; touch-action:none; flex-shrink:0;" ondblclick="document.getElementById('ppu-file-input').click()">
+        <img id="ppu-img" style="position:absolute; transform-origin:top left;" draggable="false">
+      </div>
+      <div style="display:flex; gap:10px; width:100%;">
+        <button onclick="ppuZoom(-0.1)" style="flex:1; padding:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:white; border-radius:8px; font-size:18px; cursor:pointer;">−</button>
+        <button onclick="ppuZoom(0.1)" style="flex:1; padding:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:white; border-radius:8px; font-size:18px; cursor:pointer;">+</button>
+      </div>
+      <button id="ppu-fit-btn" onclick="ppuFitObject()" style="width:100%; padding:10px; background:rgba(204,255,0,0.12); border:1px solid rgba(204,255,0,0.5); color:#ccff00; border-radius:8px; font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.1em; cursor:pointer;">⊡ Fit object inside circle</button>
+      <button onclick="ppuUpload()" id="ppu-upload-btn" style="width:100%; padding:14px; background:#00BFFF; color:#000073; font-family:'Cinzel',serif; font-size:13px; font-weight:700; border:none; border-radius:10px; cursor:pointer; letter-spacing:0.1em;">Save & Upload</button>
+      <div id="ppu-status" style="font-family:'Crimson Pro',serif; font-size:13px; color:rgba(255,255,255,0.7); font-style:italic; text-align:center; min-height:20px;"></div>
+    </div>
+    <button onclick="closePpuModal()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-family:'Cinzel',serif; font-size:11px; cursor:pointer; letter-spacing:0.1em;">✕ Cancel</button>
+  </div>
+</div>
 
-.screen-title {
-  font-family: 'Cinzel', serif;
-  font-size: 14px;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.7);
-  text-transform: uppercase;
-  text-align: center;
-  margin-bottom: 28px;
-}
+<!-- ═══════════════════════════════════════════════
+     LOGIN SCREEN
+     ═══════════════════════════════════════════════ -->
+<div id="screen-gyo-login" class="screen active">
+  <img src="https://i.postimg.cc/NFwtVVDY/Tsutsuji-portal-logo-KY-with-tsutsuji-cropped.png" alt="GYO"
+    style="width:120px;height:auto;object-fit:contain;filter:drop-shadow(0 0 8px rgba(204,255,0,0.9)) drop-shadow(0 0 28px rgba(204,255,0,0.5));margin-bottom:20px;">
+  <div style="font-family:'Klee One','Ma Shan Zheng',cursive;font-size:26px;color:#f5f0e8;text-shadow:0 0 8px rgba(255,245,80,0.8);margin-bottom:6px;">觀音靈簽</div>
+  <div style="font-family:'Aleo',serif;font-size:18px;color:var(--sky,#00BFFF);letter-spacing:0.08em;margin-bottom:4px;">GYO</div>
+  <div style="font-family:'Cinzel',serif;font-size:12px;color:#e0b0ff;letter-spacing:0.2em;margin-bottom:40px;">Divination (i) Tsutsuji</div>
+  <div class="card" onclick="startGoogleLogin()" style="max-width:320px;width:100%;justify-content:center;gap:12px;cursor:pointer;">
+    <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    <span style="font-family:'Cinzel',serif;font-size:14px;color:white;">Sign in with Google</span>
+  </div>
+  <div id="login-error-gyo" style="color:#ff8a80;font-size:13px;margin-top:16px;display:none;max-width:320px;text-align:center;"></div>
+  <div style="font-family:'Crimson Pro',serif;font-size:11px;font-style:italic;color:rgba(255,255,255,0.3);margin-top:48px;">GYO · Divination (i) Tsutsuji · SPGo</div>
+</div>
 
-/* CARDS */
-.cards {
-  width: 100%;
-  max-width: 420px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+<!-- VERIFYING SCREEN -->
+<div id="screen-gyo-verify" class="screen" style="justify-content:center;gap:20px;">
+  <img src="https://i.postimg.cc/NFwtVVDY/Tsutsuji-portal-logo-KY-with-tsutsuji-cropped.png" class="sp-loading-img" style="width:80px;height:auto;object-fit:contain;">
+  <div class="sp-loading">Loading…</div>
+</div>
 
-.card {
-  background: var(--dim);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  cursor: pointer;
-  transition: background 0.25s, border-color 0.25s, transform 0.15s;
-  -webkit-user-select: none;
-  user-select: none;
-  text-decoration: none;
-  color: inherit;
-}
-.card:active { transform: scale(0.97); background: rgba(0,191,255,0.12); border-color: var(--sky); }
-.card.grayed { opacity: 0.35; pointer-events: none; }
-.card.external { cursor: pointer; }
+<!-- GYO SPLASH SCREEN -->
+<div id="screen-B2-2-2-splash" class="screen" style="padding:0; position:relative; overflow:hidden;">
+  <div style="position:absolute; inset:0; background-image: url('https://i.postimg.cc/QNzjqmR1/Draw-AKwan-Yin-Lot.png'); background-size: auto 100%; background-repeat: no-repeat; background-position: center; z-index:0;"></div>
+  <div style="position:absolute; inset:0; background: rgba(0,0,50,0.45); z-index:1;"></div>
+  <div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100dvh; padding: 40px 20px; text-align:center;" onclick="gyoEnter()">
+    <div style="font-family:'Klee One','Ma Shan Zheng',cursive; font-size:52px; color:#f5f0e8; text-shadow: 0 0 8px rgba(255,245,80,0.9), 0 0 30px rgba(255,243,100,0.6); margin-bottom:20px;">觀音靈簽</div>
+    <img src="https://i.postimg.cc/NFwtVVDY/Tsutsuji-portal-logo-KY-with-tsutsuji-cropped.png" alt="GYO" style="max-height:200px; width:auto; filter:drop-shadow(0 0 8px rgba(204,255,0,0.95)) drop-shadow(0 0 28px rgba(204,255,0,0.55)) drop-shadow(0 0 60px rgba(204,255,0,0.25)); margin-bottom:30px;">
+    <div style="font-family:'IM Fell English',serif; font-size:18px; font-style:italic; color:rgba(255,245,220,0.8); margin-bottom:40px;">Tap anywhere to enter</div>
+    <div style="position:absolute; bottom:28px; text-align:center;">
+      <div style="font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.15em; color:rgba(255,255,255,0.35);">VISITS</div>
+      <div id="gyo-visit-count" style="font-size:22px; color:rgba(255,255,255,0.6);">—</div>
+    </div>
+  </div>
+</div>
 
-.card-icon {
-  width: 48px;
-  flex-shrink: 0;
-  text-align: center;
-}
-.card-icon img {
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto;
-}
-.card-text { flex: 1; }
-.card-title {
-  font-family: 'Cinzel', serif;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--sky);
-  margin-bottom: 3px;
-}
-.card-desc { font-size: 13px; color: rgba(255,255,255,0.5); }
-.card-desc2 { font-size: 12px; color: var(--sky); margin-top: 4px; opacity: 0.7; }
-.card-arrow { color: var(--sky); font-size: 20px; flex-shrink: 0; }
-/* ── Node-type card colours — edit here to change globally ── */
-.card-alias  { font-family: var(--font-name2); font-weight: 400; font-size: 16px; color: var(--color-name2); }
-.card.card-hub    { background: var(--color-hub-bg);    border-color: var(--color-hub-border);    box-shadow: 0 2px 12px var(--color-hub-glow); }
-.card.card-portal { background: var(--color-portal-bg); border-color: var(--color-portal-border); box-shadow: 0 2px 12px var(--color-portal-glow); }
-.card.card-ext    { background: var(--color-ext-bg);    border-color: var(--color-ext-border);    box-shadow: 0 2px 12px var(--color-ext-glow); }
-.card.card-tool   { background: var(--color-tool-bg);   border-color: var(--color-tool-border);   box-shadow: 0 2px 12px var(--color-tool-glow); }
-.card.card-screen { background: var(--color-screen-bg); border-color: var(--color-screen-border); box-shadow: 0 2px 12px var(--color-screen-glow); }
-.card.card-hub    .card-title, .card.card-portal .card-title, .card.card-tool .card-title { color: #ffffff; }
-.card.card-screen .card-title  { color: #000073; }
-.card.card-screen .card-arrow  { color: rgba(0,0,115,0.6); }
-.card.card-screen .card-desc   { color: rgba(0,0,80,0.75); }
-.card.card-ext    .card-title   { color: var(--color-ext-name1); }
-.card.card-hub    .card-arrow, .card.card-portal .card-arrow, .card.card-tool .card-arrow { color: rgba(255,255,255,0.7); }
-.card.card-ext    .card-arrow   { color: var(--color-ext-border); }
-.card.card-hub    .card-desc, .card.card-portal .card-desc, .card.card-tool .card-desc    { color: rgba(255,255,255,0.75); }
-.card.card-ext    .card-desc    { color: rgba(80,0,120,0.85); }
-.card.card-hub    .card-icon img, .card.card-portal .card-icon img, .card.card-tool .card-icon img { filter: brightness(1.1); }
+<!-- ═══════════════════════════════════════════════
+     GYO HOME MENU SCREEN
+     ═══════════════════════════════════════════════ -->
+<div id="screen-gyo-menu" class="screen">
+  <div class="gyo-menu-logo">
+    <img src="https://i.postimg.cc/NFwtVVDY/Tsutsuji-portal-logo-KY-with-tsutsuji-cropped.png" alt="GYO">
+    <div class="gyo-menu-logo-title">觀音靈簽</div>
+    <div class="gyo-menu-logo-sub">Divination (i) Tsutsuji</div>
+  </div>
 
-/* INNER SCREEN HEADER */
-.inner-header {
-  width: 100%;
-  max-width: 420px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  padding: 20px 0 16px;
-  margin-bottom: 24px;
-}
-.back-btn {
-  background: none;
-  border: none;
-  color: var(--sky);
-  font-size: 26px;
-  cursor: pointer;
-  padding: 0 6px 0 0;
-  flex-shrink: 0;
-  line-height: 1;
-}
-.inner-title {
-  font-family: 'Cinzel', serif;
-  font-size: 14px;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.7);
-  text-transform: uppercase;
-  flex: 1;
-}
+  <div class="cards" style="max-width:420px;">
+    <!-- Draw Lots -->
+    <div class="card card-tool" onclick="goTo('screen-B2-2-2-T2')">
+      <div class="card-icon" style="font-size:32px;">🔮</div>
+      <div class="card-text">
+        <div class="card-title">Draw Lots</div>
+        <div class="card-desc">Ask a question · Draw your lot</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
 
-/* SECTION DIVIDER */
-.section-divider {
-  width: 100%;
-  max-width: 420px;
-  height: 1px;
-  background: rgba(255,255,255,0.08);
-  margin: 8px 0;
-}
+    <!-- Previously Drawn Lots -->
+    <div class="card card-screen" onclick="goTo('screen-gyo-history')">
+      <div class="card-icon" style="font-size:32px;">🗂️</div>
+      <div class="card-text">
+        <div class="card-title">Previously Drawn Lots</div>
+        <div class="card-desc">Your last 5 draws · Local only</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
 
-/* COLLAPSIBLE TOOLS SECTION */
-.tools-section {
-  width: 100%;
-  max-width: 420px;
-}
-.tools-toggle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  padding: 10px 0;
-  -webkit-user-select: none;
-  user-select: none;
-}
-.tools-toggle-label {
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  letter-spacing: 0.15em;
-  color: var(--sky);
-  opacity: 0.7;
-  text-transform: uppercase;
-}
-.tools-toggle-arrow {
-  color: var(--sky);
-  font-size: 14px;
-  opacity: 0.7;
-  transition: transform 0.2s;
-}
-.tools-toggle-arrow.open { transform: rotate(90deg); }
-.tools-inner {
-  display: none;
-  flex-direction: column;
-  gap: 14px;
-  padding-top: 8px;
-}
-.tools-inner.open { display: flex; }
+    <!-- Lots Directory -->
+    <div class="card card-ext" onclick="window.location.href='https://spgo5.github.io/Go5.GYO.Directory/'">
+      <div class="card-icon" style="font-size:32px;">📖</div>
+      <div class="card-text">
+        <div class="card-title">Lots Directory</div>
+        <div class="card-desc">Browse all 100 Guanyin lots</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  </div>
 
-/* VISIT COUNTER */
-.visit-counter {
-  margin-top: 60px;
-  text-align: center;
-}
-.visit-label {
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.35);
-}
-.visit-num {
-  font-size: 22px;
-  color: rgba(255,255,255,0.6);
-  display: block;
-  margin-top: 4px;
-}
+  <div style="margin-top:40px; text-align:center;">
+    <img src="https://i.postimg.cc/kXbp4m8s/tsutsuji-Divination-logo-1-glow-green.png" alt="Tsutsuji" style="width:80px;height:auto;object-fit:contain;opacity:0.85;">
+  </div>
 
-/* USER BADGE */
-.user-badge {
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.5);
-  background: rgba(0,191,255,0.1);
-  border: 1px solid rgba(0,191,255,0.25);
-  border-radius: 20px;
-  padding: 6px 14px;
-  margin-bottom: 28px;
-  margin-top: 8px;
-}
+  <div class="portal-footer">
+    <div class="footer-credit">Developed by <strong>Claude</strong> · Conceived &amp; directed by <strong>SPGo</strong></div>
+    <div class="footer-copy">© 2026 · SPGo · All rights reserved</div>
+  </div>
+</div>
 
-/* BUTTONS */
-.btn-primary {
-  width: 75%;
-  height: 56px;
-  border-radius: 12px;
-  background: var(--sky);
-  color: var(--navy);
-  border: none;
-  font-family: 'Cinzel', serif;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
-}
-.btn-primary:hover { opacity: 0.9; }
-.btn-primary:active { transform: scale(0.98); opacity: 0.8; }
-.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+<!-- ═══════════════════════════════════════════════
+     PREVIOUSLY DRAWN LOTS — HISTORY SCREEN
+     ═══════════════════════════════════════════════ -->
+<div id="screen-gyo-history" class="screen">
+  <div class="inner-header" style="max-width:420px; width:100%;">
+    <button class="back-btn" onclick="goTo('screen-gyo-menu')">‹</button>
+    <span class="inner-title">Previously Drawn Lots</span>
+  </div>
 
-.btn-secondary {
-  width: 75%;
-  padding: 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(0,191,255,0.3);
-  background: transparent;
-  color: rgba(255,255,255,0.4);
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  letter-spacing: 0.15em;
-  cursor: pointer;
-  margin-top: 12px;
-  transition: border-color 0.2s, color 0.2s;
-}
-.btn-secondary:hover { border-color: var(--sky); color: rgba(255,255,255,0.7); }
+  <p class="hist-privacy-note">Your last 5 draws are only saved locally on this device.</p>
 
-/* FORM ELEMENTS */
-.dropdown-wrap {
-  width: 100%;
-  max-width: 420px;
-  margin-bottom: 16px;
-}
-.dropdown-label {
-  font-family: 'Roboto', 'Crimson Pro', sans-serif;
-  font-size: 12px;
-  color: rgba(255,255,255,0.35);
-  margin-bottom: 6px;
-  display: block;
-  text-align: center;
-  letter-spacing: 0.05em;
-}
-.dropdown-wrap select, .search-input {
-  width: 100%;
-  height: 54px;
-  border-radius: 10px;
-  border: 2px solid rgba(0,191,255,0.3);
-  background: rgba(0,0,0,0.35);
-  color: var(--white);
-  font-size: 14px;
-  font-family: 'Crimson Pro', serif;
-  padding: 0 16px;
-  outline: none;
-  appearance: none;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-.dropdown-wrap select:focus, .search-input:focus { border-color: var(--sky); }
-.dropdown-wrap .chevron {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--sky);
-  pointer-events: none;
-  font-size: 14px;
-}
-.dropdown-wrap { position: relative; }
+  <div id="hist-slots-container" style="width:100%; max-width:420px;">
+    <!-- slots rendered by JS -->
+  </div>
 
-/* RESULT IMAGE DISPLAY */
-.chart-result {
-  width: 100%;
-  max-width: 420px;
-  margin-top: 20px;
-  text-align: center;
-  display: none;
-}
-.chart-result.active { display: block; }
-.chart-result img {
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-}
-.chart-na {
-  padding: 40px;
-  background: var(--dim2);
-  border: 1px solid var(--border-dim);
-  border-radius: 12px;
-  color: var(--text-mid);
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
-  letter-spacing: 0.1em;
+  <div class="portal-footer">
+    <div class="footer-credit">Developed by <strong>Claude</strong> · Conceived &amp; directed by <strong>SPGo</strong></div>
+    <div class="footer-copy">© 2026 · SPGo · All rights reserved</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     DRAW + RESULT SCREENS
+     ═══════════════════════════════════════════════ -->
+<div id="screen-B2-2-2-T2" class="screen">
+  <div class="inner-header" style="max-width:420px; width:100%;">
+    <button class="back-btn" onclick="goTo('screen-gyo-menu')">‹</button>
+    <span class="inner-title">Draw Lots</span>
+  </div>
+
+  <div id="kw-main-view" style="display:flex; flex-direction:column; align-items:center; width:100%;">
+    <div class="kwanyin-title">觀音靈簽</div>
+    <img class="kwanyin-img" src="https://i.postimg.cc/NFwtVVDY/Tsutsuji-portal-logo-KY-with-tsutsuji-cropped.png" alt="GYO">
+
+    <p style="font-size:14px; font-style:italic; color:#c8c0b0; text-align:center; margin-bottom:18px;">Choose your source of randomness</p>
+
+    <div class="kw-methods">
+      <div class="kw-method-card active" onclick="kwSelectMethod('quantum')" id="kw-card-quantum">
+        <span class="kw-method-icon">⚛️</span>
+        <span class="kw-method-name">Quantum</span>
+        <span class="kw-method-desc">Quantum vacuum</span>
+      </div>
+      <div class="kw-method-card" onclick="kwSelectMethod('random-org')" id="kw-card-random-org">
+        <span class="kw-method-icon">📡</span>
+        <span class="kw-method-name">Atm.</span>
+        <span class="kw-method-desc">Atmospheric noise</span>
+      </div>
+      <div class="kw-method-card" onclick="kwSelectMethod('crypto')" id="kw-card-crypto">
+        <span class="kw-method-icon">🔐</span>
+        <span class="kw-method-name">Crypto</span>
+        <span class="kw-method-desc">Hardware entropy</span>
+      </div>
+    </div>
+
+    <div style="width:100%; max-width:420px; margin-bottom:16px;">
+      <label style="font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.35); display:block; margin-bottom:8px;">Type your question here:</label>
+      <textarea id="kw-question" rows="3" placeholder="What would you like to ask Her Holy's Wisdom?" style="width:100%; border-radius:10px; border:1px solid rgba(0,191,255,0.3); background:rgba(0,0,0,0.35); color:white; font-size:16px; font-family:'Crimson Pro',serif; padding:12px 14px; outline:none; resize:none; line-height:1.5; min-height:60px; overflow:hidden;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+    </div>
+
+    <div class="kw-stage">
+      <p style="font-size:14px; font-style:italic; color:rgba(255,245,220,0.75); text-align:center; margin-bottom:18px; line-height:1.6;">Focus your mind on your question</p>
+      <button class="kw-btn" id="kw-btn" onclick="kwDraw()">Draw a lot</button>
+      <div class="kw-fate" id="kw-fate" style="margin-top:20px; min-height:22px;"></div>
+      <div class="kw-status" id="kw-status"></div>
+      <div class="kw-number" id="kw-number" style="margin-top:8px; color:#ccff00; font-family:'Cormorant Garamond',serif; font-weight:700; font-size:128px; line-height:1; text-shadow:0 0 8px rgba(204,255,0,0.95), 0 0 30px rgba(204,255,0,0.6), 0 0 60px rgba(204,255,0,0.3);">—</div>
+      <button id="kw-print-btn" onclick="kwShowResult()" style="display:none; margin-top:20px; font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.12em; color:#000073; background:#00BFFF; border:none; border-radius:10px; padding:12px 28px; cursor:pointer; font-weight:700;">Print the Result</button>
+    </div>
+
+    <!-- Unreachable popup -->
+    <div id="kw-unreachable-popup" style="display:none; width:100%; max-width:420px; margin-top:16px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,100,100,0.4); border-radius:14px; padding:20px 18px; text-align:center;">
+      <div style="font-family:'Cinzel',serif; font-size:13px; color:#ff8a80; letter-spacing:0.08em; margin-bottom:6px;">⚠ Quantum source unreachable</div>
+      <div style="font-family:'Crimson Pro',serif; font-size:13px; font-style:italic; color:rgba(255,255,255,0.6); margin-bottom:16px;">The quantum vacuum API is not responding at this moment.</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button onclick="kwRetryQuantum()" style="width:100%; padding:12px; background:rgba(0,191,255,0.15); border:1px solid rgba(0,191,255,0.4); color:#00BFFF; font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.1em; border-radius:10px; cursor:pointer;">↺ Try Again</button>
+        <div style="display:flex; gap:10px;">
+          <button onclick="kwSwitchTo('random-org')" style="flex:1; padding:12px 8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.8); font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.08em; border-radius:10px; cursor:pointer;">📡 Use Atm.</button>
+          <button onclick="kwSwitchTo('crypto')" style="flex:1; padding:12px 8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.8); font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.08em; border-radius:10px; cursor:pointer;">🔐 Use Crypto</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:32px; padding-bottom:16px;">
+      <img src="https://i.postimg.cc/kXbp4m8s/tsutsuji-Divination-logo-1-glow-green.png" alt="Tsutsuji" style="width:72px; height:auto; object-fit:contain; opacity:0.85;">
+    </div>
+  </div>
+
+  <!-- RESULT VIEW -->
+  <div id="kw-result-view" style="display:none; flex-direction:column; align-items:center; width:100%; position:relative; min-height:80dvh;">
+    <div style="position:fixed; inset:0; z-index:-1; background-image:url('https://i.postimg.cc/QNzjqmR1/Draw-AKwan-Yin-Lot.png'); background-size:cover; background-position:center;"></div>
+    <div style="position:fixed; inset:0; z-index:-1; background:rgba(0,0,40,0.6);"></div>
+    <div style="position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; padding:28px 24px 48px; text-align:center; width:100%; max-width:420px;">
+      <div style="font-family:'Cinzel',serif; font-size:15px; font-weight:600; letter-spacing:0.15em; color:rgba(255,245,220,0.9); margin-bottom:14px;">Divination (i) Tsutsuji</div>
+      <img src="https://i.postimg.cc/NFwtVVDY/Tsutsuji-portal-logo-KY-with-tsutsuji-cropped.png" alt="GYO" style="max-height:120px; width:auto; filter:drop-shadow(0 0 8px rgba(204,255,0,0.95)) drop-shadow(0 0 28px rgba(204,255,0,0.55)) drop-shadow(0 0 60px rgba(204,255,0,0.25)); margin-bottom:10px;">
+      <div style="font-family:'Klee One','Ma Shan Zheng',cursive; font-size:24px; color:#f5f0e8; text-shadow:0 0 8px rgba(255,245,80,0.8); margin-bottom:14px;">觀音靈簽</div>
+      <div id="kw-result-datetime" style="font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.12em; color:rgba(255,245,220,0.55); margin-bottom:14px;"></div>
+      <div style="width:100%; margin-bottom:10px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:20px 22px; text-align:left;">
+        <div style="font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,245,220,0.5); margin-bottom:12px;">The answer to your question:</div>
+        <div id="kw-result-question" style="font-family:'Corinthia',cursive; font-size:28px; color:#00E5FF; line-height:1.5; margin-bottom:14px; font-style:normal;"></div>
+        <div style="font-family:'Cinzel',serif; font-size:12px; color:rgba(255,245,220,0.5); margin-bottom:6px;">is:</div>
+        <div id="kw-result-lot-label" style="font-family:'Cormorant Garamond',serif; font-weight:300; color:#c8a96e; line-height:1.2;">
+          <span style="font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:300; color:#c8a96e;">Lot</span><span style="display:inline-block; width:16px;"></span><span id="kw-result-lot-num" style="font-family:'Cormorant Garamond',serif; font-size:72px; font-weight:700; color:#ccff00; line-height:1; text-shadow:0 0 8px rgba(204,255,0,0.95), 0 0 30px rgba(204,255,0,0.6), 0 0 60px rgba(204,255,0,0.3);"></span>
+        </div>
+      </div>
+      <div id="kw-result-source" style="font-family:'Crimson Pro',serif; font-style:italic; font-size:12px; color:rgba(255,245,220,0.45); text-align:center; margin-bottom:14px;"></div>
+      <img src="https://i.postimg.cc/kXbp4m8s/tsutsuji-Divination-logo-1-glow-green.png" alt="Tsutsuji" style="width:56px; height:auto; object-fit:contain; opacity:0.85; margin-bottom:16px;">
+      <a id="kw-lot-link" href="#" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:14px; background:rgba(255,245,220,0.12); border:1px solid rgba(255,245,220,0.3); border-radius:10px; font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.1em; color:rgba(255,245,220,0.8); text-decoration:none; margin-bottom:4px; cursor:pointer;">
+        <img src="https://i.postimg.cc/kgmb9JGx/tsutsuji_1_no_leave_2.png" style="width:20px;height:20px;object-fit:contain;">
+        <span id="kw-lot-link-text">See what this Lot says ↗</span>
+      </a>
+      <div id="kw-tier-note" style="display:none; color:#ff6666; font-size:12px; font-family:'Crimson Pro',serif; font-style:italic; text-align:center; margin-bottom:12px;">Reserved for subscribed users</div>
+      <div style="width:100%; height:1px; background:rgba(255,255,255,0.15); margin-bottom:16px;"></div>
+      <div style="display:flex; gap:10px; width:100%; margin-bottom:2px;">
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;">
+          <button onclick="kwCopyResultImage()" style="width:100%; padding:12px 8px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:white; font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.08em; border-radius:10px; cursor:pointer; backdrop-filter:blur(4px);">Copy Results 📷</button>
+          <span id="kw-img-copy-confirm" style="font-size:11px; color:rgba(255,255,255,0.6); font-style:italic; opacity:0; transition:opacity 0.3s; height:16px;">Downloaded!</span>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;">
+          <button onclick="kwCopyResult()" style="width:100%; padding:12px 8px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:white; font-family:'Cinzel',serif; font-size:11px; letter-spacing:0.08em; border-radius:10px; cursor:pointer; backdrop-filter:blur(4px);">Copy Result 📄</button>
+          <span id="kw-result-copy-confirm" style="font-size:11px; color:rgba(255,255,255,0.6); font-style:italic; opacity:0; transition:opacity 0.3s; height:16px;">Copied!</span>
+        </div>
+      </div>
+      <div style="width:100%; height:1px; background:rgba(255,255,255,0.15); margin:12px 0 16px;"></div>
+      <button onclick="kwAskAnother()" style="width:100%; padding:13px; background:rgba(255,245,220,0.08); border:1px solid rgba(255,245,220,0.2); color:rgba(255,245,220,0.7); font-family:'Cinzel',serif; font-size:12px; letter-spacing:0.12em; border-radius:10px; cursor:pointer; margin-bottom:10px;">Ask Another Question</button>
+      <div style="font-size:12px; color:#ff6666; text-align:center; margin-bottom:20px; font-style:italic;">Do not ask the same question again.</div>
+      <div style="font-size:11px; color:rgba(255,245,220,0.3); text-align:center; font-family:'Cinzel',serif; letter-spacing:0.1em;">You're using Super Portal 五 Go</div>
+    </div>
+  </div>
+
+  <div class="portal-footer">
+    <div class="footer-credit">Developed by <strong>Claude</strong> · Conceived &amp; directed by <strong>SPGo</strong></div>
+    <div class="footer-copy">© 2026 · SPGo · All rights reserved</div>
+  </div>
+</div>
+
+<script src="https://spgo5.github.io/Go5.SHARED/spgo-core.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// ================================================================
+// 🔮 GYO — Guanyin Oracle Standalone · Divination (i) Tsutsuji
+// ================================================================
+
+// ── Screen navigation ──
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const el = document.getElementById(screenId);
+  if (el) { el.style.display = 'flex'; el.classList.add('active'); window.scrollTo(0, 0); }
+  if (screenId === 'screen-B2-2-2-T2') resetKwanyin();
+  if (screenId === 'screen-gyo-history') renderHistorySlots();
+
 }
 
-/* ============================================================
-   SCREEN 0 — LOGIN
-   ============================================================ */
-#screen-B0-login .id-input {
-  width: 100%;
-  max-width: 420px;
-  padding: 14px 16px;
-  border: 2px solid rgba(0,191,255,0.3);
-  border-radius: 12px;
-  font-size: 16px;
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.1em;
-  background: rgba(0,0,0,0.3);
-  color: white;
-  outline: none;
-  text-align: center;
-  text-transform: uppercase;
-  display: none;
-  margin-top: 14px;
-}
-#screen-B0-login .id-input::placeholder { color: rgba(255,255,255,0.25); }
-#screen-B0-login .id-input:focus { border-color: var(--sky); }
-#btn-go-id {
-  width: 100%;
-  max-width: 420px;
-  padding: 14px;
-  background: var(--sky);
-  color: var(--navy);
-  border: none;
-  border-radius: 12px;
-  font-family: 'Cinzel', serif;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  display: none;
-  margin-top: 10px;
-}
-.login-note {
-  font-size: 13px;
-  color: var(--text-mid);
-  text-align: center;
-  margin-top: 24px;
-  max-width: 320px;
-  line-height: 1.7;
+// ── JSONP helper ──
+function gasJsonp(params, onSuccess, onError, timeoutMs) {
+  const cbName = 'gasCB_' + Date.now() + '_' + Math.floor(Math.random()*9999);
+  const script = document.createElement('script');
+  const timer = setTimeout(() => { cleanup(); if (onError) onError('Timeout'); }, timeoutMs || 15000);
+  function cleanup() { clearTimeout(timer); delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); }
+  window[cbName] = function(data) { cleanup(); onSuccess(data); };
+  script.onerror = function() { cleanup(); if (onError) onError('Script load failed'); };
+  document.head.appendChild(script);
+  script.src = GAS_URL + '?' + params + '&callback=' + cbName;
 }
 
-/* ============================================================
-   UNIVERSAL LOADING STATE — SPGo Super Portal Design System
-   All loading/status text across the portal must use:
-   - Font: Crimson Pro, italic
-   - Color: #ccff00 (lime) while loading, rgba(255,255,255,0.5) on error
-   - Animation: haircutPulse 1.2s ease-in-out infinite
-   - Text: "Loading…" (never "Loading your charts...", "Searching...", etc.)
-   - Apply class "sp-loading" to any loading text element
-   - Apply class "sp-loading-img" to any logo image shown while loading
-   The verifying screen also follows this pattern.
-   ============================================================ */
-.sp-loading {
-  font-family: 'Crimson Pro', serif !important;
-  font-style: italic !important;
-  font-size: 15px !important;
-  color: #ccff00 !important;
-  animation: haircutPulse 1.2s ease-in-out infinite !important;
-  text-align: center;
-}
-.sp-loading-img {
-  animation: haircutGlowBlob 1.6s ease-in-out infinite !important;
+// ── Login error display ──
+function showLoginError(msg) {
+  const el = document.getElementById('login-error-gyo');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+  goTo('screen-gyo-login');
 }
 
-@keyframes haircutGlowBlob {
-  0%,100% { filter: drop-shadow(0 0 6px rgba(204,255,0,0.9)) drop-shadow(0 0 20px rgba(204,255,0,0.5)); transform: scale(1); }
-  50%      { filter: drop-shadow(0 0 18px rgba(204,255,0,1)) drop-shadow(0 0 40px rgba(204,255,0,0.7)); transform: scale(1.07); }
-}
-@keyframes haircutPulse {
-  0%,100% { opacity: 1; }
-  50%      { opacity: 0.3; }
-}
-.fcs-container { border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.12); margin-bottom:16px; background:rgba(255,255,255,0.04); }
-.fcs-section-label { font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.15em; color:#ffffff; text-transform:uppercase; text-align:center; margin-bottom:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.1); }
-.fcs-row { display:flex; flex-direction:row; align-items:stretch; gap:0; margin-bottom:0; border-radius:0; overflow:hidden; border:none; border-bottom:1px solid rgba(255,255,255,0.06); background:transparent; }
-.fcs-row:last-child { border-bottom:none; }
-.fcs-emoji-box { width:64px; min-width:64px; background:transparent; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; padding:8px; gap:2px; font-size:18px; line-height:1.3; border-right:1px solid rgba(255,255,255,0.07); }
-.fcs-mr-box { flex:1; background:transparent; padding:12px 14px; display:flex; flex-direction:column; justify-content:center; gap:3px; }
-.fcs-cn { font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700; color:#ff6666; line-height:1.3; }
-.fcs-vn { font-family:'Noto Serif TC',serif; font-size:13px; color:#cc88ff; line-height:1.3; }
-.fcs-en { font-family:'Roboto',sans-serif; font-size:12px; color:#ffffff; opacity:0.85; line-height:1.3; }
-.fcs-check-box { width:32px; min-width:32px; background:rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; font-size:16px; color:#00cc44; }
+// ── Verifying screen ──
+function showVerifying() { goTo('screen-gyo-verify'); }
 
-/* ============================================================
-   PORTAL FOOTER
-   ============================================================ */
-.portal-footer {
-  width: 100%;
-  max-width: 420px;
-  text-align: center;
-  padding: 28px 16px 36px;
-  margin-top: auto;
-  border-top: 1px solid rgba(255,255,255,0.08);
+// ── Start Google login ──
+function startGoogleLogin() {
+  const el = document.getElementById('login-error-gyo');
+  if (el) el.style.display = 'none';
+  const redirectUri = window.location.origin + '/Go5.GYO/index.html';
+  const params = new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID,
+    redirect_uri: redirectUri,
+    response_type: 'token',
+    scope: 'email profile',
+    prompt: 'select_account'
+  });
+  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
 }
-.footer-credit {
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: rgba(255,255,255,0.3);
-  margin-bottom: 5px;
+
+// ── Validate token with Google then GAS ──
+async function validateWithToken(token) {
+  showVerifying();
+  try {
+    const resp = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    const info = await resp.json();
+    const email = info.email;
+    if (!email) { showLoginError('Could not get your email. Please try again.'); return; }
+
+    gasJsonp('action=validateEmail&email=' + encodeURIComponent(email), function(data) {
+      if (data.valid) {
+        currentUser = data.idCode || email;
+        currentUserName = data.name || data.idCode || email;
+        currentFsSubscriber = data.fsSubscriber === true;
+        currentHasPortal = data.hasPortal === true;
+        currentHasBara = data.hasBara === true;
+        currentTier = data.tier || 0;
+        isGuest = false;
+        try {
+          localStorage.setItem('go_saved_user', JSON.stringify({
+            user: currentUser, name: currentUserName,
+            fs: currentFsSubscriber, portal: currentHasPortal,
+            hasBara: currentHasBara, tier: currentTier,
+            email: email, savedAt: Date.now()
+          }));
+        } catch(e) {}
+        setHomeState();
+        updateProfileCorner();
+      } else {
+        showLoginError('Your account (' + email + ') is not registered.');
+      }
+    }, function() {
+      showLoginError('Connection error. Please try again.');
+    });
+  } catch(e) {
+    showLoginError('Connection error. Please try again.');
+  }
 }
-.footer-copy {
-  font-family: 'Cinzel', serif;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.18);
+
+// ── Check OAuth token or saved session on load ──
+function checkOAuthReturn() {
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token')) {
+    const params = new URLSearchParams(hash.substring(1));
+    const token = params.get('access_token');
+    if (token) {
+      history.replaceState({}, '', window.location.pathname);
+      validateWithToken(token);
+      return;
+    }
+  }
+  try {
+    const saved = localStorage.getItem('go_saved_user');
+    if (saved) {
+      const s = JSON.parse(saved);
+      const age = Date.now() - (s.savedAt || 0);
+      if (age < 30 * 24 * 3600 * 1000 && s.user && s.email) {
+        currentUser = s.user;
+        currentUserName = s.name || s.user;
+        currentFsSubscriber = !!s.fs;
+        currentHasPortal = !!s.portal;
+        currentHasBara = !!s.hasBara;
+        currentTier = s.tier || 0;
+        isGuest = false;
+        setHomeState();
+        updateProfileCorner();
+        return;
+      } else {
+        localStorage.removeItem('go_saved_user');
+      }
+    }
+  } catch(e) {}
+  goTo('screen-gyo-login');
 }
+
+// ── Set home state: show splash then menu ──
+function setHomeState() {
+  goTo('screen-B2-2-2-splash');
+  updateProfileCorner();
+  applyTierGating();
+}
+
+// ── Logout ──
+function toggleLogoutPopup() {
+  const popup = document.getElementById('logout-popup');
+  if (!popup) return;
+  popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
+}
+
+function doLogout() {
+  try { localStorage.removeItem('go_saved_user'); } catch(e) {}
+  const popup = document.getElementById('logout-popup');
+  if (popup) popup.style.display = 'none';
+  currentUser = null; currentUserName = 'Guest';
+  currentFsSubscriber = false; currentHasPortal = false;
+  currentHasBara = false; currentTier = 0; isGuest = false;
+  updateProfileCorner();
+  goTo('screen-gyo-login');
+}
+
+// ── Tier gating ──
+function applyTierGating() {
+  const linkEl = document.getElementById('kw-lot-link');
+  const noteEl = document.getElementById('kw-tier-note');
+  const canSeeLink = !isGuest && (currentTier === 1 || currentTier === 2);
+  if (linkEl) { linkEl.style.pointerEvents = canSeeLink ? 'auto' : 'none'; linkEl.style.opacity = canSeeLink ? '1' : '0.3'; }
+  if (noteEl) noteEl.style.display = canSeeLink ? 'none' : 'block';
+}
+
+function applyFsSubscriberGating() {}
+function guestLogin() {}
+function showIdInput() {}
+function loginWithId() {}
+function handleGoogleLogin() {}
+function initGoogleAuth() {}
+function getTimeGreeting() { const h = new Date().getHours(); return h<12?'Good morning':h<17?'Good afternoon':h<21?'Good evening':'Good night'; }
+
+// ── GYO navigation ──
+function gyoEnter() { goTo('screen-gyo-menu'); }
+
+// ================================================================
+// LOCAL HISTORY — max 5 draws, FIFO, localStorage
+// ================================================================
+const HIST_KEY = 'gyo_draw_history';
+const HIST_MAX = 5;
+
+function histLoad() {
+  try {
+    const raw = localStorage.getItem(HIST_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+
+function histSave(arr) {
+  try { localStorage.setItem(HIST_KEY, JSON.stringify(arr)); } catch(e) {}
+}
+
+function histPush(entry) {
+  // entry: { lot, question, datetime, source }
+  let arr = histLoad();
+  arr.unshift(entry); // newest first
+  if (arr.length > HIST_MAX) arr = arr.slice(0, HIST_MAX);
+  histSave(arr);
+}
+
+function histDelete(idx) {
+  let arr = histLoad();
+  arr.splice(idx, 1);
+  histSave(arr);
+  renderHistorySlots();
+}
+
+function getQuestionPreview(q) {
+  if (!q) return '(No question entered)';
+  const words = q.trim().split(/\s+/);
+  if (words.length <= 10) return q.trim();
+  return words.slice(0, 10).join(' ') + '…';
+}
+
+function renderHistorySlots() {
+  const container = document.getElementById('hist-slots-container');
+  if (!container) return;
+  const arr = histLoad();
+  let html = '';
+
+  for (let i = 0; i < HIST_MAX; i++) {
+    const entry = arr[i];
+    const isLast = (i === HIST_MAX - 1);
+
+    if (!entry) {
+      // Empty slot
+      html += `<div class="hist-slot empty">
+        <div class="hist-slot-empty-label">— Empty slot ${i+1} —</div>
+      </div>`;
+    } else {
+      const warn = (isLast && arr.length === HIST_MAX)
+        ? `<div class="hist-replace-warn">Next draw will replace this card. Download the PNG to keep it permanently.</div>`
+        : '';
+      const qPreview = getQuestionPreview(entry.question);
+      html += `${warn}<div class="hist-slot" id="hist-slot-${i}">
+        <div class="hist-slot-num">Draw ${i+1} · ${entry.datetime || ''}</div>
+        <div>
+          <span class="hist-slot-lot">${entry.lot}</span>
+          <span class="hist-slot-date">${entry.source || ''}</span>
+        </div>
+        <div class="hist-slot-q">${escHtml(qPreview)}</div>
+        <div class="hist-slot-actions">
+          <button class="btn-regen" onclick="histRegenerate(${i})">↺ Regenerate</button>
+          <button class="btn-copy-img" onclick="histCopyImage(${i})">Copy Results 📷</button>
+          <button class="btn-del" onclick="histDelete(${i})">Delete 🗑️</button>
+        </div>
+      </div>`;
+    }
+  }
+  container.innerHTML = html;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function histRegenerate(idx) {
+  const arr = histLoad();
+  const entry = arr[idx];
+  if (!entry) return;
+  // goTo triggers resetKwanyin which nulls everything — navigate first, restore after
+  goTo('screen-B2-2-2-T2');
+  kwLastNumber = entry.lot;
+  kwLastSource = entry.source;
+  kwResultDateTime = entry.datetime;
+  const qEl = document.getElementById('kw-question');
+  if (qEl) qEl.value = entry.question || '';
+  kwShowResultNoSave();
+}
+
+function histCopyImage(idx) {
+  const arr = histLoad();
+  const entry = arr[idx];
+  if (!entry) return;
+  // Save current state
+  const savedNum = kwLastNumber, savedSrc = kwLastSource, savedDt = kwResultDateTime;
+  const savedQ = (document.getElementById('kw-question') || {}).value || '';
+  const wasOnScreen = document.querySelector('.screen.active') ? document.querySelector('.screen.active').id : null;
+  // Populate result screen with history entry
+  kwLastNumber = entry.lot;
+  kwLastSource = entry.source;
+  kwResultDateTime = entry.datetime;
+  const qEl = document.getElementById('kw-question');
+  if (qEl) qEl.value = entry.question || '';
+  // Show result screen so html2canvas can capture it
+  kwShowResultNoSave();
+  // Screenshot then restore
+  kwCopyResultImage(() => {
+    kwLastNumber = savedNum;
+    kwLastSource = savedSrc;
+    kwResultDateTime = savedDt;
+    if (qEl) qEl.value = savedQ;
+    // Return to history screen
+    if (wasOnScreen) goTo(wasOnScreen); else goTo('screen-gyo-history');
+  });
+}
+
+// ================================================================
+// GYO — Kwanyin Oracle Logic
+// ================================================================
+kwLastNumber = null;
+kwLastSource = null;
+kwResultDateTime = '';
+kwSelectedMethod = 'quantum';
+kwIsDrawing = false;
+
+function kwRetryQuantum() {
+  const popup = document.getElementById('kw-unreachable-popup');
+  if (popup) popup.style.display = 'none';
+  kwDraw();
+}
+
+function kwSwitchTo(method) {
+  const popup = document.getElementById('kw-unreachable-popup');
+  if (popup) popup.style.display = 'none';
+  kwSelectMethod(method);
+  kwDraw();
+}
+
+function kwSelectMethod(m) {
+  kwSelectedMethod = m;
+  document.querySelectorAll('.kw-method-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('kw-card-' + m);
+  if (card) card.classList.add('active');
+}
+
+function resetKwanyin() {
+  kwLastNumber = null; kwLastSource = null; kwResultDateTime = '';
+  const popup = document.getElementById('kw-unreachable-popup');
+  if (popup) popup.style.display = 'none';
+  const numEl = document.getElementById('kw-number'); if (numEl) numEl.textContent = '—';
+  const fateEl = document.getElementById('kw-fate'); if (fateEl) fateEl.textContent = '';
+  const statusEl = document.getElementById('kw-status'); if (statusEl) statusEl.textContent = '';
+  const qEl = document.getElementById('kw-question'); if (qEl) qEl.value = '';
+  const printBtn = document.getElementById('kw-print-btn'); if (printBtn) printBtn.style.display = 'none';
+  const btn = document.getElementById('kw-btn'); if (btn) { btn.disabled = false; btn.textContent = 'Draw a lot'; }
+  kwSelectedMethod = 'quantum'; kwIsDrawing = false;
+  document.querySelectorAll('.kw-method-card').forEach(c => c.classList.remove('active'));
+  const qCard = document.getElementById('kw-card-quantum'); if (qCard) qCard.classList.add('active');
+  const mv = document.getElementById('kw-main-view'); if (mv) mv.style.display = 'flex';
+  const rv = document.getElementById('kw-result-view'); if (rv) rv.style.display = 'none';
+}
+
+async function quantumFetchN(max) {
+  const r = await fetch('https://qrng.anu.edu.au/API/jsonI.php?length=1&type=uint16');
+  const j = await r.json();
+  return (j.data[0] % max) + 1;
+}
+async function randomOrgFetchN(max) {
+  const r = await fetch('https://www.random.org/integers/?num=1&min=1&max=' + max + '&col=1&base=10&format=plain&rnd=new');
+  return parseInt(await r.text());
+}
+function cryptoRandN(max) {
+  const arr = new Uint32Array(1); crypto.getRandomValues(arr);
+  return (arr[0] % max) + 1;
+}
+
+async function kwDraw() {
+  if (kwIsDrawing) return;
+  kwIsDrawing = true;
+  const btn = document.getElementById('kw-btn');
+  const numEl = document.getElementById('kw-number');
+  const fateEl = document.getElementById('kw-fate');
+  const statusEl = document.getElementById('kw-status');
+  btn.disabled = true; btn.textContent = 'Drawing…';
+  if (fateEl) fateEl.textContent = '';
+  if (statusEl) statusEl.textContent = '';
+  if (numEl) numEl.textContent = '—';
+  const popup = document.getElementById('kw-unreachable-popup');
+  if (popup) popup.style.display = 'none';
+  let number, sourceUsed = kwSelectedMethod;
+  try {
+    if (kwSelectedMethod === 'crypto') {
+      await new Promise(r => setTimeout(r, 200));
+      number = cryptoRandN(100);
+    } else if (kwSelectedMethod === 'random-org') {
+      if (statusEl) statusEl.textContent = 'Contacting random.org…';
+      try { number = await randomOrgFetchN(100); }
+      catch { if (statusEl) statusEl.textContent = 'Atm. unreachable — using crypto'; number = cryptoRandN(100); sourceUsed = 'crypto'; }
+    } else {
+      if (statusEl) statusEl.textContent = 'Querying quantum vacuum…';
+      try { number = await quantumFetchN(100); }
+      catch {
+        if (statusEl) statusEl.textContent = '';
+        btn.disabled = false; btn.textContent = 'Draw a lot'; kwIsDrawing = false;
+        const popup2 = document.getElementById('kw-unreachable-popup');
+        if (popup2) popup2.style.display = 'block';
+        return;
+      }
+    }
+    if (numEl) numEl.classList.add('rolling');
+    const end = Date.now() + 900;
+    await new Promise(resolve => {
+      const tick = () => {
+        if (numEl) numEl.textContent = Math.floor(Math.random() * 100) + 1;
+        if (Date.now() < end) requestAnimationFrame(tick);
+        else { if (numEl) numEl.classList.remove('rolling'); resolve(); }
+      };
+      requestAnimationFrame(tick);
+    });
+    if (numEl) numEl.textContent = number;
+    kwLastNumber = number; kwLastSource = sourceUsed;
+    const now = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    kwResultDateTime = months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear()
+      + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+    const fates = { crypto: 'Hardware entropy has decided:', 'random-org': 'The atmosphere has chosen:', quantum: 'Quantum chance has decided:' };
+    if (fateEl) fateEl.textContent = fates[sourceUsed];
+    if (statusEl && !statusEl.textContent.includes('unreachable')) statusEl.textContent = '';
+    btn.disabled = false; btn.textContent = 'Draw a lot'; kwIsDrawing = false;
+    const printBtn = document.getElementById('kw-print-btn'); if (printBtn) printBtn.style.display = 'inline-flex';
+  } catch(err) {
+    if (fateEl) fateEl.textContent = 'The oracle is silent';
+    if (statusEl) statusEl.textContent = 'Error: ' + err.message;
+    btn.disabled = false; btn.textContent = 'Draw a lot'; kwIsDrawing = false;
+  }
+}
+
+function kwSmartCapitalise(text) {
+  if (!text) return '';
+  text = text.trim();
+  text = text.charAt(0).toUpperCase() + text.slice(1);
+  if (!/[.!?]$/.test(text)) text += '.';
+  return text.replace(/([.!?]\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+}
+
+function kwShowResult() {
+  if (!kwLastNumber) return;
+  const mv = document.getElementById('kw-main-view'); if (mv) mv.style.display = 'none';
+  const rv = document.getElementById('kw-result-view'); if (rv) rv.style.display = 'flex';
+  document.querySelectorAll('.kw-method-card').forEach(c => c.style.animation = 'none');
+  const rawQ = (document.getElementById('kw-question') || {}).value || '';
+  const smartQ = kwSmartCapitalise(rawQ);
+  const qEl = document.getElementById('kw-result-question'); if (qEl) qEl.textContent = smartQ || '(No question entered)';
+  const lotEl = document.getElementById('kw-result-lot-num'); if (lotEl) lotEl.textContent = kwLastNumber;
+  const dtEl = document.getElementById('kw-result-datetime'); if (dtEl) dtEl.textContent = kwResultDateTime;
+  const LOT_BASE = 'https://sites.google.com/view/divinationitsutsuji/%E8%A7%80%E9%9F%B3%E9%9D%88%E7%B0%BD-guan-yin-fortune-divination-quan-%C3%A2m-linh-thi%C3%AAm/lots/';
+  const linkEl = document.getElementById('kw-lot-link'); if (linkEl) linkEl.href = LOT_BASE + kwLastNumber;
+  const linkTextEl = document.getElementById('kw-lot-link-text'); if (linkTextEl) linkTextEl.textContent = 'See what Lot ' + kwLastNumber + ' says ↗';
+  applyTierGating();
+  const srcLabels = { 'quantum': '⚛️ Quantum', 'random-org': '📡 Atm.', 'crypto': '🔐 Crypto' };
+  const srcEl = document.getElementById('kw-result-source'); if (srcEl) srcEl.textContent = 'Randomness provided by ' + (srcLabels[kwLastSource] || kwLastSource || 'Unknown');
+  window.scrollTo(0, 0);
+
+  // Save to local history
+  const question = (document.getElementById('kw-question') || {}).value || '';
+  histPush({
+    lot: kwLastNumber,
+    question: question,
+    datetime: kwResultDateTime,
+    source: kwLastSource
+  });
+}
+
+function kwShowResultNoSave() {
+  if (!kwLastNumber) return;
+  const mv = document.getElementById('kw-main-view'); if (mv) mv.style.display = 'none';
+  const rv = document.getElementById('kw-result-view'); if (rv) rv.style.display = 'flex';
+  document.querySelectorAll('.kw-method-card').forEach(c => c.style.animation = 'none');
+  const rawQ = (document.getElementById('kw-question') || {}).value || '';
+  const smartQ = kwSmartCapitalise(rawQ);
+  const qEl = document.getElementById('kw-result-question'); if (qEl) qEl.textContent = smartQ || '(No question entered)';
+  const lotEl = document.getElementById('kw-result-lot-num'); if (lotEl) lotEl.textContent = kwLastNumber;
+  const dtEl = document.getElementById('kw-result-datetime'); if (dtEl) dtEl.textContent = kwResultDateTime;
+  const LOT_BASE = 'https://sites.google.com/view/divinationitsutsuji/%E8%A7%80%E9%9F%B3%E9%9D%88%E7%B0%BD-guan-yin-fortune-divination-quan-%C3%A2m-linh-thi%C3%AAm/lots/';
+  const linkEl = document.getElementById('kw-lot-link'); if (linkEl) linkEl.href = LOT_BASE + kwLastNumber;
+  const linkTextEl = document.getElementById('kw-lot-link-text'); if (linkTextEl) linkTextEl.textContent = 'See what Lot ' + kwLastNumber + ' says ↗';
+  applyTierGating();
+  const srcLabels = { 'quantum': '⚛️ Quantum', 'random-org': '📡 Atm.', 'crypto': '🔐 Crypto' };
+  const srcEl = document.getElementById('kw-result-source'); if (srcEl) srcEl.textContent = 'Randomness provided by ' + (srcLabels[kwLastSource] || kwLastSource || 'Unknown');
+  window.scrollTo(0, 0);
+}
+
+function kwAskAnother() {
+  const rv = document.getElementById('kw-result-view'); if (rv) rv.style.display = 'none';
+  const mv = document.getElementById('kw-main-view'); if (mv) mv.style.display = 'flex';
+  document.querySelectorAll('.kw-method-card').forEach(c => c.style.animation = '');
+  resetKwanyin();
+  window.scrollTo(0, 0);
+}
+
+function kwCopyResult() {
+  if (!kwLastNumber) return;
+  const rawQ = (document.getElementById('kw-question') || {}).value || '';
+  const smartQ = kwSmartCapitalise(rawQ);
+  const text = 'Divination (i) Tsutsuji\n觀音靈簽\n' + kwResultDateTime
+    + '\n\nThe answer to your question:\n"' + (smartQ || '(No question entered)') + '"\nis:\nLot ' + kwLastNumber;
+  navigator.clipboard.writeText(text).then(() => {
+    const el = document.getElementById('kw-result-copy-confirm');
+    if (el) { el.style.opacity = '1'; setTimeout(() => el.style.opacity = '0', 2200); }
+  });
+}
+
+function kwRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath();
+}
+function kwWrapText(ctx, text, x, y, maxW, lineH) {
+  const words = text.split(' '); let line = '';
+  for (let i = 0; i < words.length; i++) {
+    const test = line + words[i] + ' ';
+    if (ctx.measureText(test).width > maxW && i > 0) { ctx.fillText(line, x, y); line = words[i] + ' '; y += lineH; }
+    else line = test;
+  }
+  ctx.fillText(line, x, y);
+}
+
+// ── kwCopyResultImage: screenshot the result screen ──
+function kwCopyResultImage(onDoneCallback) {
+  const rv = document.getElementById('kw-result-view');
+  if (!rv) { if (onDoneCallback) onDoneCallback(); return; }
+  const btns = rv.querySelectorAll('button, .kw-action-row');
+  btns.forEach(b => b.style.visibility = 'hidden');
+  html2canvas(rv, {
+    useCORS: true,
+    allowTaint: false,
+    backgroundColor: '#000073',
+    scale: 2,
+    logging: false
+  }).then(function(canvas) {
+    btns.forEach(b => b.style.visibility = '');
+    const now = new Date();
+    const mm = String(now.getMonth()+1).padStart(2,'0');
+    const dd = String(now.getDate()).padStart(2,'0');
+    const yy = String(now.getFullYear()).slice(-2);
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mn = String(now.getMinutes()).padStart(2,'0');
+    const link = document.createElement('a');
+    link.download = 'GYO Result ' + mm+dd+yy+' '+hh+mn + '.png';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    canvas.toBlob(function(blob) {
+      link.href = blob ? URL.createObjectURL(blob) : canvas.toDataURL('image/png');
+      link.click();
+      setTimeout(() => {
+        if (blob) URL.revokeObjectURL(link.href);
+        if (link.parentNode) document.body.removeChild(link);
+      }, 5000);
+      const imgEl = document.getElementById('kw-img-copy-confirm');
+      if (imgEl) { imgEl.style.opacity = '1'; setTimeout(() => imgEl.style.opacity = '0', 2500); }
+      if (onDoneCallback) onDoneCallback();
+    }, 'image/png');
+  }).catch(function() {
+    btns.forEach(b => b.style.visibility = '');
+    if (onDoneCallback) onDoneCallback();
+  });
+}
+
+
+// ── Init ──
+document.addEventListener('click', function(e) {
+  const popup = document.getElementById('logout-popup');
+  const corner = document.getElementById('profile-corner');
+  if (popup && popup.style.display === 'flex' && corner && !popup.contains(e.target) && !corner.contains(e.target)) {
+    popup.style.display = 'none';
+  }
+});
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    checkOAuthReturn();
+    gasJsonp('action=ping&stat=visits_gyo', function(data) {
+      const el = document.getElementById('gyo-visit-count');
+      if (el && data.count !== undefined) el.textContent = data.count.toLocaleString();
+    }, function() {});
+  });
+} else {
+  checkOAuthReturn();
+  gasJsonp('action=ping&stat=visits_gyo', function(data) {
+    const el = document.getElementById('gyo-visit-count');
+    if (el && data.count !== undefined) el.textContent = data.count.toLocaleString();
+  }, function() {});
+}
+</script>
+</body>
+</html>
