@@ -294,7 +294,11 @@ html, body {
 .card.card-portal { background: var(--color-portal-bg); border-color: var(--color-portal-border); box-shadow: 0 2px 12px var(--color-portal-glow); }
 .card.card-ext    { background: var(--color-ext-bg);    border-color: var(--color-ext-border);    box-shadow: 0 2px 12px var(--color-ext-glow); }
 .card.card-tool   { background: var(--color-tool-bg);   border-color: var(--color-tool-border);   box-shadow: 0 2px 12px var(--color-tool-glow); }
+.card.card-screen { background: var(--color-screen-bg); border-color: var(--color-screen-border); box-shadow: 0 2px 12px var(--color-screen-glow); }
 .card.card-hub    .card-title, .card.card-portal .card-title, .card.card-tool .card-title { color: #ffffff; }
+.card.card-screen .card-title  { color: #000073; }
+.card.card-screen .card-arrow  { color: rgba(0,0,115,0.6); }
+.card.card-screen .card-desc   { color: rgba(0,0,80,0.75); }
 .card.card-ext    .card-title   { color: var(--color-ext-name1); }
 .card.card-hub    .card-arrow, .card.card-portal .card-arrow, .card.card-tool .card-arrow { color: rgba(255,255,255,0.7); }
 .card.card-ext    .card-arrow   { color: var(--color-ext-border); }
