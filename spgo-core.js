@@ -60,23 +60,14 @@ const GOOGLE_CLIENT_ID = '427989206862-svhf1cote22nhdhkq68ff14446upp2m4.apps.goo
 // On page load — check if returning from Google OAuth redirect
 // (runs after all functions are defined)
 function checkOAuthReturn() {
-  try {
-    // ── Approach 2: Upstream Cache Eviction ──────────────────────────────
-    // If returning from Google OAuth, the stale cached version of this script
-    // may have already caused a broken session. Flush the browser's Cache
-    // Storage API now — before any login logic runs — so the next GAS call
-    // and any subsequent page load gets a fresh copy of all assets.
-    if (window.location.hash && window.location.hash.includes('access_token')) {
-      if ('caches' in window) {
-        caches.keys().then(function(cacheNames) {
-          cacheNames.forEach(function(cacheName) {
-            caches.delete(cacheName);
-          });
-        });
-      }
+  if (window.location.hash && window.location.hash.includes('access_token')) {
+    if ('caches' in window) {
+      caches.keys().then(function(cacheNames) {
+        cacheNames.forEach(function(cacheName) { caches.delete(cacheName); });
+      });
     }
-    // ────────────────────────────────────────────────────────────────────
-
+  }
+  try {
     // Check for saved login in localStorage (max 30 days)
     const saved = localStorage.getItem('go_saved_user');
     if (saved && !window.location.hash.includes('access_token')) {
