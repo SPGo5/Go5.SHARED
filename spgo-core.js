@@ -30,7 +30,7 @@ let kwIsDrawing = false;
 let kwHistory = [];
 
 // ============================================================
-// LOGIN — Authorization Code + PKCE flow (replaces deprecated Implicit flow)
+// LOGIN — Direct OAuth redirect (no library, guaranteed to work)
 // ============================================================
 // ============================================================
 // UNIFIED JSONP helper for ALL GAS calls (avoids CORS issues)
@@ -55,21 +55,7 @@ function gasJsonp(params, onSuccess, onError, timeoutMs) {
   document.head.appendChild(script);
   script.src = url;
 }
-
 const GOOGLE_CLIENT_ID = '427989206862-svhf1cote22nhdhkq68ff14446upp2m4.apps.googleusercontent.com';
-
-// ── PKCE helpers ──
-async function generatePKCE() {
-  const array = crypto.getRandomValues(new Uint8Array(32));
-  const verifier = btoa(String.fromCharCode(...array))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const encoder = new TextEncoder();
-  const data = encoder.encode(verifier);
-  const digest = await crypto.subtle.digest('SHA-256', data);
-  const challenge = btoa(String.fromCharCode(...new Uint8Array(digest)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  return { verifier, challenge };
-}
 
 // On page load — check if returning from Google OAuth redirect
 // (runs after all functions are defined)
@@ -77,7 +63,7 @@ function checkOAuthReturn() {
   try {
     // Check for saved login in localStorage (max 30 days)
     const saved = localStorage.getItem('go_saved_user');
-    if (saved && !window.location.search.includes('code=')) {
+    if (saved && !window.location.hash.includes('access_token')) {
       const s = JSON.parse(saved);
       const age = Date.now() - (s.savedAt || 0);
       if (age < 30 * 24 * 3600 * 1000 && s.user && s.email) {
@@ -118,35 +104,23 @@ function checkOAuthReturn() {
         localStorage.removeItem('go_saved_user');
       }
     }
-
-    // PKCE: auth code arrives as ?code= query param (not hash)
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    if (!code) return;
-    const verifier = sessionStorage.getItem('go_pkce_verifier');
-    // Clean up URL immediately
-    history.replaceState({}, '', window.location.pathname);
-    if (verifier) validateWithCode(code, verifier);
+    const hash = window.location.hash;
+    if (!hash || !hash.includes('access_token')) return;
+    const params = new URLSearchParams(hash.replace('#', ''));
+    const token = params.get('access_token');
+    if (token) {
+      // IMPORTANT: save the token to sessionStorage BEFORE clearing the hash.
+      // Mobile Chrome can interrupt async flows mid-flight; keeping the token
+      // in sessionStorage means it survives even if the page briefly reloads.
+      try { sessionStorage.setItem('go_pending_token', token); } catch(e) {}
+      // Only now is it safe to clean up the URL hash.
+      history.replaceState({}, '', window.location.pathname);
+      validateWithToken(token);
+    }
   } catch(e) {}
 }
 
-async function startGoogleLogin() {
-  const { verifier, challenge } = await generatePKCE();
-  try { sessionStorage.setItem('go_pkce_verifier', verifier); } catch(e) {}
-  const redirectUri = window.location.origin + window.location.pathname;
-  const params = new URLSearchParams({
-    client_id: GOOGLE_CLIENT_ID,
-    redirect_uri: redirectUri,
-    response_type: 'code',
-    scope: 'email profile',
-    code_challenge: challenge,
-    code_challenge_method: 'S256',
-    prompt: 'select_account'
-  });
-  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
-}
-
-async function validateWithCode(code, verifier) {
+async function validateWithToken(token) {
   // Show verifying state — portals override showVerifying() for their own screen
   if (typeof showVerifying === 'function') showVerifying();
   else {
@@ -156,22 +130,6 @@ async function validateWithCode(code, verifier) {
   }
 
   try {
-    const redirectUri = window.location.origin + window.location.pathname;
-    const tokenResp = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: GOOGLE_CLIENT_ID,
-        code,
-        code_verifier: verifier,
-        redirect_uri: redirectUri,
-        grant_type: 'authorization_code'
-      })
-    });
-    const tokenData = await tokenResp.json();
-    const token = tokenData.access_token;
-    if (!token) throw new Error('No access token in response');
-
     const infoResp = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: { Authorization: 'Bearer ' + token }
     });
@@ -201,8 +159,8 @@ async function validateWithCode(code, verifier) {
             hasBara: currentHasBara, tier: currentTier,
             email: email, savedAt: Date.now()
           }));
-          // PKCE verifier no longer needed
-          sessionStorage.removeItem('go_pkce_verifier');
+          // Token safely committed — clear the sessionStorage safety net
+          sessionStorage.removeItem('go_pending_token');
         } catch(e) {}
         setHomeState();
         updateProfileCorner();
@@ -226,6 +184,20 @@ function showVerifying() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const verifyScreen = document.getElementById('screen-B0-verify');
   if (verifyScreen) verifyScreen.classList.add('active');
+}
+
+function startGoogleLogin() {
+  // Build Google OAuth URL — implicit flow, returns access_token in hash
+  const redirectUri = window.location.origin + window.location.pathname;
+  const params = new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID,
+    redirect_uri: redirectUri,
+    response_type: 'token',
+    scope: 'email profile',
+    prompt: 'select_account'
+  });
+  // Redirect to Google — user picks account, Google redirects back with token
+  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
 }
 
 function showLoginError(msg) {
