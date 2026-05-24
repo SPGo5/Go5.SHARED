@@ -82,8 +82,7 @@ function checkOAuthReturn() {
         currentHasBara = !!s.hasBara;
         currentTier = s.tier || 0;
         isGuest = false;
-        setHomeState();
-        updateProfileCorner();
+        activatePortal();
         goTo('screen-B0');
         // Re-fetch from GAS in background to refresh name/portal/tier
         gasJsonp('action=validateEmail&email=' + encodeURIComponent(s.email), function(data) {
@@ -102,8 +101,7 @@ function checkOAuthReturn() {
                 email: s.email, savedAt: Date.now()
               }));
             } catch(e) {}
-            setHomeState();
-            updateProfileCorner();
+            activatePortal();
           }
         }, null);
         return;
@@ -169,8 +167,7 @@ async function validateWithToken(token) {
           // Token safely committed — clear the sessionStorage safety net
           sessionStorage.removeItem('go_pending_token');
         } catch(e) {}
-        setHomeState();
-        updateProfileCorner();
+        activatePortal();
         goTo('screen-B0');
       } else {
         goTo('screen-B0-login');
@@ -584,8 +581,7 @@ function guestLogin() {
   currentHasPortal = false;
   isGuest = true;
   try { localStorage.removeItem('go_saved_user'); } catch(e) {}
-  setHomeState();
-  updateProfileCorner();
+  activatePortal();
   goTo('screen-B0');
 }
 
@@ -595,6 +591,11 @@ function getTimeGreeting() {
   if (h >= 12 && h < 17) return 'Good afternoon';
   if (h >= 17 && h < 21) return 'Good evening';
   return 'Good night';
+}
+
+function activatePortal() {
+  setHomeState();
+  updateProfileCorner();
 }
 
 function setHomeState() {
