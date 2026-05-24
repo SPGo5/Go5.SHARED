@@ -632,3 +632,6 @@ html, body {
   letter-spacing: 0.1em;
   color: rgba(255,255,255,0.18);
 }
+
+/* Result source caption — never italic */
+#kw-result-source { font-style: normal; }
