@@ -12,7 +12,7 @@ let currentUserName = 'Guest';
 let currentFsSubscriber = false;
 let currentHasPortal = false;
 let currentHasBara = false;
-let currentTier = 0;
+let currentTier = 0; // 1, 2, or 3 (0 = none/guest)
 let isGuest = false;
 let mapInstance = null;
 let drawMode = false;
@@ -23,12 +23,15 @@ let mapStartPt = null;
 let mapCurrentPt = null;
 let isDrawing = false;
 let currentTrueBearing = null;
-let currentMapLatLng = null;
+let currentMapLatLng = null; // center of map
 let currentPeriodForRuler = null;
 let kwSelectedMethod = 'quantum';
 let kwIsDrawing = false;
 let kwHistory = [];
 
+// ============================================================
+// LOGIN — Direct OAuth redirect (no library, guaranteed to work)
+// ============================================================
 // ============================================================
 // UNIFIED JSONP helper for ALL GAS calls (avoids CORS issues)
 // ============================================================
@@ -55,13 +58,16 @@ function gasJsonp(params, onSuccess, onError, timeoutMs) {
 const GOOGLE_CLIENT_ID = '427989206862-svhf1cote22nhdhkq68ff14446upp2m4.apps.googleusercontent.com';
 
 // On page load — check if returning from Google OAuth redirect
+// (runs after all functions are defined)
 function checkOAuthReturn() {
   try {
+    // Check for saved login in localStorage (max 30 days)
     const saved = localStorage.getItem('go_saved_user');
     if (saved && !window.location.hash.includes('access_token')) {
       const s = JSON.parse(saved);
       const age = Date.now() - (s.savedAt || 0);
       if (age < 30 * 24 * 3600 * 1000 && s.user && s.email) {
+        // Restore session immediately so user isn't logged out
         currentUser = s.user;
         currentUserName = s.name || s.user;
         currentFsSubscriber = !!s.fs;
@@ -72,7 +78,7 @@ function checkOAuthReturn() {
         setHomeState();
         updateProfileCorner();
         goTo('screen-B0');
-        
+        // Re-fetch from GAS in background to refresh name/portal/tier
         gasJsonp('action=validateEmail&email=' + encodeURIComponent(s.email), function(data) {
           if (data.valid) {
             currentUserName = data.name || currentUser;
@@ -80,6 +86,7 @@ function checkOAuthReturn() {
             currentHasPortal = data.hasPortal === true;
             currentHasBara = data.hasBara === true;
             currentTier = data.tier || 0;
+            // Update cache with fresh data
             try {
               localStorage.setItem('go_saved_user', JSON.stringify({
                 user: currentUser, name: currentUserName,
@@ -102,7 +109,11 @@ function checkOAuthReturn() {
     const params = new URLSearchParams(hash.replace('#', ''));
     const token = params.get('access_token');
     if (token) {
+      // IMPORTANT: save the token to sessionStorage BEFORE clearing the hash.
+      // Mobile Chrome can interrupt async flows mid-flight; keeping the token
+      // in sessionStorage means it survives even if the page briefly reloads.
       try { sessionStorage.setItem('go_pending_token', token); } catch(e) {}
+      // Only now is it safe to clean up the URL hash.
       history.replaceState({}, '', window.location.pathname);
       validateWithToken(token);
     }
@@ -110,6 +121,7 @@ function checkOAuthReturn() {
 }
 
 async function validateWithToken(token) {
+  // Show verifying state — portals override showVerifying() for their own screen
   if (typeof showVerifying === 'function') showVerifying();
   else {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -130,6 +142,7 @@ async function validateWithToken(token) {
       return;
     }
 
+    // JSONP to avoid CORS with GAS
     gasJsonp('action=validateEmail&email=' + encodeURIComponent(email), function(data) {
       if (data.valid) {
         currentUser = data.idCode || email;
@@ -146,6 +159,7 @@ async function validateWithToken(token) {
             hasBara: currentHasBara, tier: currentTier,
             email: email, savedAt: Date.now()
           }));
+          // Token safely committed — clear the sessionStorage safety net
           sessionStorage.removeItem('go_pending_token');
         } catch(e) {}
         setHomeState();
@@ -166,12 +180,14 @@ async function validateWithToken(token) {
 }
 
 function showVerifying() {
+  // Default for SuperPortal — portals override this
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const verifyScreen = document.getElementById('screen-B0-verify');
   if (verifyScreen) verifyScreen.classList.add('active');
 }
 
 function startGoogleLogin() {
+  // Build Google OAuth URL — implicit flow, returns access_token in hash
   const redirectUri = window.location.origin + window.location.pathname;
   const params = new URLSearchParams({
     client_id: GOOGLE_CLIENT_ID,
@@ -180,6 +196,7 @@ function startGoogleLogin() {
     scope: 'email profile',
     prompt: 'select_account'
   });
+  // Redirect to Google — user picks account, Google redirects back with token
   window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
 }
 
@@ -210,6 +227,7 @@ function updateProfileCorner() {
                   : currentTier === 3 ? 'Tier 3'
                   : '';
   code.innerHTML = currentUser + (tierLabel ? '<br><span style="font-size:8px;color:rgba(0,191,255,0.6);letter-spacing:0.05em;">' + tierLabel + '</span>' : '');
+  // Load from Drive via GAS (uses cache if already loaded this session)
   loadProfilePic(currentUser, currentTier, function(dataUri, isPersonal) {
     if (dataUri) {
       img.src = dataUri;
@@ -224,6 +242,7 @@ function updateProfileCorner() {
 }
 
 function ppuCheckUriTransparency(dataUri, onResult) {
+  // Load the image from data URI and check for transparent pixels
   const testImg = new Image();
   testImg.onload = function() {
     const tc = document.createElement('canvas');
@@ -252,13 +271,16 @@ function loadProfilePic(idCode, tier, callback) {
       const mime = data.mime || 'image/png';
       const uri = 'data:' + mime + ';base64,' + data.data;
       if (data.isPersonal) {
+        // Personal pic — check if it has transparent background
         ppuCheckUriTransparency(uri, function(isTransparent) {
+          // isPersonal=true but transparent=treat like flower (no circle)
           const showAsCircle = !isTransparent;
           cachedProfilePicDataUri = uri;
           cachedProfilePicIsPersonal = showAsCircle;
           callback(uri, showAsCircle);
         });
       } else {
+        // Tier default — always flower style
         cachedProfilePicDataUri = uri;
         cachedProfilePicIsPersonal = false;
         callback(uri, false);
@@ -285,6 +307,7 @@ function doLogout() {
   goTo('screen-B0-login');
 }
 
+// Close popup when clicking elsewhere
 document.addEventListener('click', function(e) {
   const popup = document.getElementById('logout-popup');
   const corner = document.getElementById('profile-corner');
@@ -297,7 +320,7 @@ document.addEventListener('click', function(e) {
 // PROFILE PIC UPLOADER
 // ============================================================
 let ppuState = { scale: 1, x: 0, y: 0, dragging: false, lastX: 0, lastY: 0, naturalW: 0, naturalH: 0 };
-const PPU_SIZE = 260;
+const PPU_SIZE = 260; // crop circle diameter in px
 
 function showProfilePicUploader() {
   document.getElementById('logout-popup').style.display = 'none';
@@ -328,6 +351,7 @@ function ppuFileChosen(input) {
       ppuApplyTransform();
       document.getElementById('ppu-step1').style.display = 'none';
       document.getElementById('ppu-step2').style.display = 'flex';
+      // Fit button always visible in step 2
       const fitBtn = document.getElementById('ppu-fit-btn');
       if (fitBtn) fitBtn.style.display = 'block';
     };
@@ -355,6 +379,8 @@ function ppuZoom(delta) {
 
 function ppuFitObject() {
   if (!ppuState.naturalW || !ppuState.naturalH) return;
+  // For a square image to fit inside a circle, the diagonal must fit within the circle diameter.
+  // So max safe size = PPU_SIZE / sqrt(2) with a small margin
   const margin = 8;
   const maxSize = (PPU_SIZE / Math.SQRT2) - margin;
   const fitScale = Math.min(maxSize / ppuState.naturalW, maxSize / ppuState.naturalH);
@@ -364,11 +390,13 @@ function ppuFitObject() {
   ppuApplyTransform();
 }
 
+// Drag to reposition
 (function() {
   function setupDrag() {
     const wrap = document.getElementById('ppu-crop-wrap');
     if (!wrap) return;
 
+    // Mouse
     wrap.addEventListener('mousedown', function(e) {
       ppuState.dragging = true; ppuState.lastX = e.clientX; ppuState.lastY = e.clientY;
       wrap.style.cursor = 'grabbing'; e.preventDefault();
@@ -386,6 +414,7 @@ function ppuFitObject() {
       if (wrap) wrap.style.cursor = 'grab';
     });
 
+    // Touch
     wrap.addEventListener('touchstart', function(e) {
       if (e.touches.length === 1) {
         ppuState.dragging = true;
@@ -401,20 +430,24 @@ function ppuFitObject() {
     }, {passive: false});
     wrap.addEventListener('touchend', function() { ppuState.dragging = false; });
 
+    // Scroll to zoom
     wrap.addEventListener('wheel', function(e) {
       e.preventDefault();
       ppuZoom(e.deltaY < 0 ? 0.1 : -0.1);
     }, {passive: false});
   }
+  // Wait for DOM
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupDrag);
   else setupDrag();
 })();
 
 function ppuDetectTransparency(img) {
+  // Draw original image at natural size onto a test canvas, check for transparent pixels
   const testCanvas = document.createElement('canvas');
   testCanvas.width = img.naturalWidth; testCanvas.height = img.naturalHeight;
   const testCtx = testCanvas.getContext('2d', { willReadFrequently: true });
   testCtx.drawImage(img, 0, 0);
+  // Sample corners of the actual image
   const w = img.naturalWidth, h = img.naturalHeight;
   const pts = [[2,2],[w-2,2],[2,h-2],[w-2,h-2],[w/2,2],[2,h/2],[w-2,h/2],[w/2,h-2]];
   let transparentCount = 0;
@@ -438,16 +471,21 @@ async function ppuUpload() {
   canvas.width = OUT; canvas.height = OUT;
   const ctx = canvas.getContext('2d');
 
+  // Detect if image has transparent background (check original image, not crop)
   const isTransparent = ppuDetectTransparency(img);
+
   const scaleRatio = OUT / PPU_SIZE;
 
   if (isTransparent) {
+    // Transparent image — draw without clipping, canvas stays transparent
+    // canvas default is transparent so no fill needed
     ctx.drawImage(img,
       ppuState.x * scaleRatio, ppuState.y * scaleRatio,
       ppuState.naturalW * ppuState.scale * scaleRatio,
       ppuState.naturalH * ppuState.scale * scaleRatio
     );
   } else {
+    // Solid background — clip to circle
     ctx.beginPath(); ctx.arc(OUT/2, OUT/2, OUT/2, 0, Math.PI*2); ctx.clip();
     ctx.drawImage(img,
       ppuState.x * scaleRatio, ppuState.y * scaleRatio,
@@ -456,9 +494,10 @@ async function ppuUpload() {
     );
   }
 
+  // Transparent images use PNG to preserve alpha; solid use JPEG for size
   let dataUrl;
   if (isTransparent) {
-    dataUrl = canvas.toDataURL('image/png');
+    dataUrl = canvas.toDataURL('image/png'); // preserves alpha — no black bg
   } else {
     let quality = 0.85;
     do {
@@ -486,6 +525,7 @@ async function ppuUpload() {
     btn.disabled = false;
     if (res.success) {
       statusEl.textContent = '✅ Saved! Refreshing…';
+      // Clear cache so updateProfileCorner re-fetches from GAS with isPersonal flag
       cachedProfilePicDataUri = null;
       cachedProfilePicIsPersonal = false;
       setTimeout(function() {
@@ -506,6 +546,7 @@ function loginWithId() {}
 function handleGoogleLogin() {}
 function initGoogleAuth() {}
 
+// TWO — Use default profile pic (delete personal pic)
 async function useDefaultProfilePic() {
   const popup = document.getElementById('logout-popup');
   if (popup) popup.style.display = 'none';
@@ -520,7 +561,7 @@ async function useDefaultProfilePic() {
     if (res.success) {
       cachedProfilePicDataUri = null;
       cachedProfilePicIsPersonal = false;
-      updateProfileCorner();
+      updateProfileCorner(); // reloads from GAS — will get tier default
     } else {
       alert('Could not remove profile pic: ' + (res.error || 'Unknown error'));
     }
@@ -555,22 +596,23 @@ function setHomeState() {
   const b6 = document.getElementById('card-b6');
 
   if (isGuest) {
-    if (b3) b3.classList.add('grayed');
-    if (b4) b4.classList.add('grayed');
-    if (b6) b6.classList.add('grayed');
+    b3.classList.add('grayed');
+    b4.classList.add('grayed');
+    b6.classList.add('grayed');
     const _baraCard = document.getElementById('card-bara');
     const _baraNote = document.getElementById('bara-sub-note');
     if (_baraCard) { _baraCard.classList.add('grayed'); if (_baraNote) _baraNote.style.display = 'block'; }
-    const greeting = document.getElementById('home-greeting');
-    if (greeting) greeting.textContent = 'Welcome, Guest';
+    document.getElementById('home-greeting').textContent = 'Welcome, Guest';
   } else {
-    if (b3) b3.classList.remove('grayed');
-    if (b4) b4.classList.remove('grayed');
+    b3.classList.remove('grayed');
+    b4.classList.remove('grayed');
+    // Personal portal: column C = X (hasPortal)
     if (currentHasPortal) {
-      if (b6) b6.classList.remove('grayed');
+      b6.classList.remove('grayed');
     } else {
-      if (b6) b6.classList.add('grayed');
+      b6.classList.add('grayed');
     }
+    // Bara: column G = X (hasBara)
     const baraCard = document.getElementById('card-bara');
     const baraNote = document.getElementById('bara-sub-note');
     if (baraCard) {
@@ -586,20 +628,22 @@ function setHomeState() {
         if (baraNote2) baraNote2.style.display = 'block';
       }
     }
-    const greeting = document.getElementById('home-greeting');
-    if (greeting) greeting.textContent = getTimeGreeting() + ', ' + currentUserName;
+    document.getElementById('home-greeting').textContent = getTimeGreeting() + ', ' + currentUserName;
   }
 
+  // Gate fengshui tools
   applyFsSubscriberGating();
+  // Gate tier-based features
   applyTierGating();
 
+  // Visit counter (localStorage)
   let visits = parseInt(localStorage.getItem('go_portal_visits') || '0') + 1;
   localStorage.setItem('go_portal_visits', visits);
-  const visitEl = document.getElementById('visit-count');
-  if (visitEl) visitEl.textContent = visits.toLocaleString() + ' visits';
+  document.getElementById('visit-count').textContent = visits.toLocaleString() + ' visits';
 }
 
 function applyTierGating() {
+  // "See what Lot says" — grayed for Tier 3 and guests
   const linkEl = document.getElementById('kw-lot-link');
   const noteEl = document.getElementById('kw-tier-note');
   const canSeeLink = !isGuest && (currentTier === 1 || currentTier === 2);
@@ -612,6 +656,7 @@ function applyTierGating() {
 }
 
 function applyFsSubscriberGating() {
+  // Cards inside B4 screen that require FS (ii) Shage subscription
   const fsToolCards = document.querySelectorAll('.fs-tool-gated');
   const fsNote = document.querySelectorAll('.fs-subscriber-note');
   if (!isGuest && currentFsSubscriber) {
