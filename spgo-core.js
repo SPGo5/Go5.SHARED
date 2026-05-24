@@ -12,7 +12,7 @@ let currentUserName = 'Guest';
 let currentFsSubscriber = false;
 let currentHasPortal = false;
 let currentHasBara = false;
-let currentTier = 0; // 1, 2, or 3 (0 = none/guest)
+let currentTier = 0;
 let isGuest = false;
 let mapInstance = null;
 let drawMode = false;
@@ -23,7 +23,7 @@ let mapStartPt = null;
 let mapCurrentPt = null;
 let isDrawing = false;
 let currentTrueBearing = null;
-let currentMapLatLng = null; // center of map
+let currentMapLatLng = null;
 let currentPeriodForRuler = null;
 let kwSelectedMethod = 'quantum';
 let kwIsDrawing = false;
@@ -109,7 +109,6 @@ function checkOAuthReturn() {
   } catch(e) {}
 }
 
-// ── SURGICAL FIX: REPLACED BROKEN JSONP INCOMING VALIDATION WITH NATIVE FETCH ──
 async function validateWithToken(token) {
   if (typeof showVerifying === 'function') showVerifying();
   else {
@@ -131,38 +130,36 @@ async function validateWithToken(token) {
       return;
     }
 
-    // Direct Web App connection request (replaces broken tracking script)
-    const targetUrl = GAS_URL + '?action=validateEmail&email=' + encodeURIComponent(email);
-    const response = await fetch(targetUrl);
-    if (!response.ok) throw new Error('Database unreachable');
-    const data = await response.json();
-
-    if (data && data.valid === true) {
-      currentUser = data.idCode || email;
-      currentUserName = data.name || data.idCode || email;
-      currentFsSubscriber = data.fsSubscriber === true;
-      currentHasPortal = data.hasPortal === true;
-      currentHasBara = data.hasBara === true;
-      currentTier = data.tier || 0;
-      isGuest = false;
-      try {
-        localStorage.setItem('go_saved_user', JSON.stringify({
-          user: currentUser, name: currentUserName,
-          fs: currentFsSubscriber, portal: currentHasPortal,
-          hasBara: currentHasBara, tier: currentTier,
-          email: email, savedAt: Date.now()
-        }));
-        sessionStorage.removeItem('go_pending_token');
-      } catch(e) {}
-      setHomeState();
-      updateProfileCorner();
-      goTo('screen-B0');
-    } else {
+    gasJsonp('action=validateEmail&email=' + encodeURIComponent(email), function(data) {
+      if (data.valid) {
+        currentUser = data.idCode || email;
+        currentUserName = data.name || data.idCode || email;
+        currentFsSubscriber = data.fsSubscriber === true;
+        currentHasPortal = data.hasPortal === true;
+        currentHasBara = data.hasBara === true;
+        currentTier = data.tier || 0;
+        isGuest = false;
+        try {
+          localStorage.setItem('go_saved_user', JSON.stringify({
+            user: currentUser, name: currentUserName,
+            fs: currentFsSubscriber, portal: currentHasPortal,
+            hasBara: currentHasBara, tier: currentTier,
+            email: email, savedAt: Date.now()
+          }));
+          sessionStorage.removeItem('go_pending_token');
+        } catch(e) {}
+        setHomeState();
+        updateProfileCorner();
+        goTo('screen-B0');
+      } else {
+        goTo('screen-B0-login');
+        showLoginError('Your account (' + email + ') is not registered. Please contact your administrator.');
+      }
+    }, function() {
       goTo('screen-B0-login');
-      showLoginError('Your account (' + email + ') is not registered. Please contact your administrator.');
-    }
+      showLoginError('Connection error. Check your internet and try again.');
+    });
   } catch(e) {
-    console.error('Core validation crash:', e);
     goTo('screen-B0-login');
     showLoginError('Connection error. Check your internet and try again.');
   }
@@ -507,7 +504,6 @@ async function ppuUpload() {
 function showIdInput() {}
 function loginWithId() {}
 function handleGoogleLogin() {}
-// (startGoogleLogin holds the active handler referenced by HTML markup)
 function initGoogleAuth() {}
 
 async function useDefaultProfilePic() {
