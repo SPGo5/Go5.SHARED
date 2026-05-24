@@ -60,13 +60,6 @@ const GOOGLE_CLIENT_ID = '427989206862-svhf1cote22nhdhkq68ff14446upp2m4.apps.goo
 // On page load — check if returning from Google OAuth redirect
 // (runs after all functions are defined)
 function checkOAuthReturn() {
-  if (window.location.hash && window.location.hash.includes('access_token')) {
-    if ('caches' in window) {
-      caches.keys().then(function(cacheNames) {
-        cacheNames.forEach(function(cacheName) { caches.delete(cacheName); });
-      });
-    }
-  }
   try {
     // Check for saved login in localStorage (max 30 days)
     const saved = localStorage.getItem('go_saved_user');
