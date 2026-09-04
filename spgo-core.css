@@ -124,6 +124,7 @@ button:active, a.card:active, [onclick]:active {
   --font-name1:          'Cinzel', serif;
   --font-name2:          'Grey Qo', cursive;
   --color-name2:         #e0b0ff;
+  --font-oracle:         'Corinthia', cursive;
   --color-ext-name1:     #9900ff;
 
   /* ── Design tokens: button geometry ── */
@@ -293,6 +294,7 @@ html, body {
 .card-arrow { color: var(--sky); font-size: 20px; flex-shrink: 0; }
 /* ── Node-type card colours — edit here to change globally ── */
 .card-alias  { font-family: var(--font-name2); font-weight: 400; font-size: 16px; color: var(--color-name2); }
+.oracle-text { font-family: var(--font-oracle); }
 .card.card-hub    { background: var(--color-hub-bg);    border-color: var(--color-hub-border);    box-shadow: 0 2px 12px var(--color-hub-glow); }
 .card.card-portal { background: var(--color-portal-bg); border-color: var(--color-portal-border); box-shadow: 0 2px 12px var(--color-portal-glow); }
 .card.card-ext    { background: var(--color-ext-bg);    border-color: var(--color-ext-border);    box-shadow: 0 2px 12px var(--color-ext-glow); }
