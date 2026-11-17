@@ -127,6 +127,9 @@ button:active, a.card:active, [onclick]:active {
   --font-oracle:         'Corinthia', cursive;
   --color-ext-name1:     #9900ff;
 
+  /* ── Design tokens: bottom-edge gap (stamp / footer) — same on every screen ── */
+  --stamp-gap:           12px;
+
   /* ── Design tokens: button geometry ── */
   --btn-radius:          10px;
   --btn-border-linked:   2.5px;
@@ -163,6 +166,9 @@ html, body {
   animation: fadeIn 0.35s ease;
 }
 .screen.active { display: flex; }
+/* Screens that end with the shared footer: the footer owns the bottom spacing,
+   so the last line sits --stamp-gap above the bottom edge (same as the splash). */
+.screen:has(> .portal-footer:last-child) { padding-bottom: 0; }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -631,7 +637,7 @@ html, body {
   width: 100%;
   max-width: 420px;
   text-align: center;
-  padding: 28px 16px 36px;
+  padding: 28px 16px calc(var(--stamp-gap) + env(safe-area-inset-bottom, 0px));
   margin-top: auto;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
@@ -647,6 +653,36 @@ html, body {
   font-size: 9px;
   letter-spacing: 0.1em;
   color: rgba(255,255,255,0.18);
+}
+
+/* ============================================================
+   VERSION STAMP  ("Last Updated: …")
+   Filled automatically by spgo-core.js from document.lastModified.
+   Usage: <div class="version-stamp"></div>
+     inside .portal-footer          → last line of the footer
+     + class version-stamp--abs     → pinned --stamp-gap above the bottom of a position:relative container (splash)
+     + class version-stamp--inline  → right-aligned inside a flex header bar
+   ============================================================ */
+.version-stamp {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.45);
+  text-align: center;
+  margin-top: 6px;
+  pointer-events: none;
+}
+.version-stamp--abs {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-top: 0;
+  bottom: calc(var(--stamp-gap) + env(safe-area-inset-bottom, 0px));
+}
+.version-stamp--inline {
+  margin: 0 0 0 auto;
+  font-size: 9px;
+  text-align: right;
 }
 
 /* Result source caption — never italic */
