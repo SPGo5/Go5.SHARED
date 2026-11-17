@@ -686,3 +686,28 @@ document.addEventListener('keydown', function(e) {
   const inp = document.getElementById('idInput');
   if (inp && inp.style.display === 'block' && e.key === 'Enter') loginWithId();
 });
+
+// ── Version stamp: append this block to the END of spgo-core.js ──
+// Fills every <div class="version-stamp"> with "Last Updated: <date time>",
+// read from the server's Last-Modified time of the page that is actually loaded.
+// (IIFE on purpose: declares no globals, so it cannot clash with portal scripts.)
+(function () {
+  function fillVersionStamps() {
+    var els = document.querySelectorAll('.version-stamp');
+    if (!els.length) return;
+    var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var d = new Date(document.lastModified);
+    var txt;
+    // No Last-Modified header → browsers report "now"; don't show that as a real stamp.
+    if (isNaN(d.getTime()) || Math.abs(Date.now() - d.getTime()) < 5000) {
+      txt = 'Last Updated: unavailable';
+    } else {
+      var p = function (n) { return String(n).padStart(2, '0'); };
+      txt = 'Last Updated: ' + m[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() +
+            ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+    }
+    for (var i = 0; i < els.length; i++) els[i].textContent = txt;
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fillVersionStamps);
+  else fillVersionStamps();
+})();
