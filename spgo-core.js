@@ -574,16 +574,10 @@ async function useDefaultProfilePic() {
   }
 }
 
-function guestLogin() {
-  currentUser = null;
-  currentUserName = 'Guest';
-  currentFsSubscriber = false;
-  currentHasPortal = false;
-  isGuest = true;
-  try { localStorage.removeItem('go_saved_user'); } catch(e) {}
-  activatePortal();
-  goTo('screen-B0');
-}
+// Guest (no-email) access has been removed from every SPGo portal.
+// Kept as an empty function so old buttons/links that still call it do nothing and cannot error.
+// Only a registered Google email (checked by the backend) can sign in.
+function guestLogin() { isGuest = false; }
 
 function getTimeGreeting() {
   const h = new Date().getHours();
@@ -710,4 +704,17 @@ document.addEventListener('keydown', function(e) {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fillVersionStamps);
   else fillVersionStamps();
+})();
+
+// ── Remove any leftover "Continue as Guest" buttons from every portal ──
+// Portals that still contain a guest button lose it automatically when they load this file;
+// no portal HTML has to be edited for the button to disappear.
+(function () {
+  function removeGuestButtons() {
+    var els = document.querySelectorAll('[onclick*="guestLogin"]');
+    for (var i = 0; i < els.length; i++) { if (els[i].parentNode) els[i].parentNode.removeChild(els[i]); }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', removeGuestButtons);
+  else removeGuestButtons();
+  window.addEventListener('load', removeGuestButtons);
 })();
